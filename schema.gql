@@ -1,0 +1,92 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Comment {
+  id: Float!
+  parent: Comment
+  post: Post!
+  replies: [Comment!]
+  text: String!
+  user: User!
+}
+
+input CommentInput {
+  postId: Float
+  text: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  token: String!
+  user: User!
+}
+
+type Mutation {
+  addReplyToComment(data: ReplyInput!): Comment!
+  createComment(data: CommentInput!): Comment!
+  createPost(data: postInput!): Post!
+  deleteCommentByPost(postId: Float!): [Comment!]!
+  deletePost(id: Float!): Post!
+  login(loginData: LoginInput!): LoginResponse!
+  register(createUser: UserInput!): LoginResponse!
+  updateComment(data: CommentInput!, id: Float!): Comment!
+  updatePost(data: postInput!, id: Float!): Post!
+}
+
+type Post {
+  comments: [Comment!]!
+  content: String!
+  id: Float!
+  status: PostStatus!
+  title: String!
+  user: User
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+type Query {
+  getComment(id: Float!): Comment!
+  getPost(id: Float!): Post!
+  hello: String!
+  listComments: [Comment!]!
+  listPosts: [Post!]!
+  paginatedPosts(itemsPerPage: Int! = 10, page: Int! = 1): [Post!]!
+  search(input: String!): [Post!]!
+  user(email: String!): User!
+}
+
+input ReplyInput {
+  commentId: Float
+  postId: Float
+  text: String!
+}
+
+type User {
+  comments: [Comment!]!
+  email: String!
+  firstName: String!
+  id: Float!
+  lastName: String!
+  password: String!
+  posts: [Post!]!
+}
+
+input UserInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+input postInput {
+  content: String!
+  title: String!
+}
