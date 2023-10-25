@@ -14,6 +14,7 @@ import { GlobalErrorInterceptor } from "./middleware/error.middleware";
 import { CommentModule } from "./comment/comment.module";
 import { CommonModule } from './common/common.module';
 import { CommentPostModule } from "./comment-post/comment-post.module";
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -68,7 +69,8 @@ import { CommentPostModule } from "./comment-post/comment-post.module";
     PostModule,
     CommentModule,
     CommonModule,
-    CommentPostModule
+    CommentPostModule,
+    SearchModule,
   ],
   providers: [
     {

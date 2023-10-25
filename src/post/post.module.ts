@@ -5,11 +5,13 @@ import { PostRepository } from './post.repository';
 import { UserModule } from '../user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
+import { SearchModule } from '../search/search.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    UserModule
+    UserModule,
+    SearchModule
   ],
   providers: [PostService, PostResolver, PostRepository],
   exports: [PostService]
