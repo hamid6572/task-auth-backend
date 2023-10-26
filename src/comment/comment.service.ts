@@ -5,6 +5,7 @@ import { PostService } from "../post/post.service";
 import { User } from "../user/entities/user.entity";
 import { ReplyInput } from "./dto/input/reply-input";
 import { Comment } from "./entities/comment.entity";
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class CommentService {
@@ -13,7 +14,13 @@ export class CommentService {
     private readonly postService: PostService
   ) {}
 
-  async addcomment(data: CommentInput, user: User) {  
+  /**
+   * Addcomments comment service
+   * @param data 
+   * @param user 
+   * @returns addcomment 
+   */
+  async addcomment(data: CommentInput, user: User): Promise<Comment> {  
     const post =  await  this.postService.post(data.postId)
     if (!post) throw new BadRequestException("No post exists!");
 
@@ -24,7 +31,12 @@ export class CommentService {
     return comment;
   }
 
-  async comment(id: number) {
+  /**
+   * Comments comment service
+   * @param id 
+   * @returns comment 
+   */
+  async comment(id: number) : Promise<Comment> {
     const comment = await this.commentRepository
       .createQueryBuilder('comment')
       .where({id: id})
@@ -37,7 +49,12 @@ export class CommentService {
     return comment;
   }
 
-  async commentsByPost(postId: number) {
+  /**
+   * Comments by post
+   * @param postId 
+   * @returns by post 
+   */
+  async commentsByPost(postId: number) : Promise<Comment[]> {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.post', 'post')
@@ -51,7 +68,11 @@ export class CommentService {
     return comments;
   }
 
-  async comments() {
+  /**
+   * Comments comment service
+   * @returns comments 
+   */
+  async comments() : Promise<Comment[]> {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.post', 'post')
@@ -68,6 +89,11 @@ export class CommentService {
     return comments;
   }
   
+  /**
+   * Builds nested replies
+   * @param comment 
+   * @returns nested replies 
+   */
   private async buildNestedReplies(comment: Comment): Promise<Comment[]> {
     const replies = await this.commentRepository
       .createQueryBuilder('comment')
@@ -86,7 +112,14 @@ export class CommentService {
     return comment.replies || [];
   }
   
-  async updateComment(id: number, data: CommentInput, user: User){    
+  /**
+   * Updates comment
+   * @param id 
+   * @param data 
+   * @param user 
+   * @returns comment 
+   */
+  async updateComment(id: number, data: CommentInput, user: User) : Promise<Comment>{    
     const comment = await this.commentRepository.findOne({ where: { id, user } });
     if (!comment) throw new NotFoundException("Comment not found or you don't have permission to edit it.");
 
@@ -94,7 +127,13 @@ export class CommentService {
     return this.commentRepository.save(comment);
   }
 
-  async deleteCommentAndReplies(id: number, user: User) {
+  /**
+   * Deletes comment and replies
+   * @param id 
+   * @param user 
+   * @returns comment and replies 
+   */
+  async deleteCommentAndReplies(id: number, user: User) : Promise<Comment[]>{
     const comments = await this.commentsByPost(id);
     if (!comments) throw new NotFoundException("Comment not found or you don't have permission to delete it.");
   
@@ -115,7 +154,41 @@ export class CommentService {
     await this.commentRepository.remove(comment);
   }
 
-  async addReplyToComment(data: ReplyInput, user: User) {
+
+  /**
+   * Deletes comment and replies by query
+   * @param id 
+   * @param user 
+   * @returns comment and replies by query 
+   */
+  async deleteCommentAndRepliesByRawQuery(id: number, user: User) : Promise<Comment[]>{
+    const rawQuery = `
+      WITH RECURSIVE CommentHierarchy AS (
+        SELECT comment.id, comment.text, comment."parentId", comment."postId"
+        FROM public.comment comment
+        WHERE comment."postId" = ${id}
+        and comment."userId" = ${user.id}
+        UNION
+        SELECT child.id,  child.text, child."parentId", child."postId"
+        FROM CommentHierarchy ch, public.comment child
+        WHERE child."parentId" = ch.id
+      )
+      DELETE FROM public.comment
+      USING CommentHierarchy
+      WHERE public.comment.id = CommentHierarchy.id;
+    `;
+    const results = await this.commentRepository.query(rawQuery);
+
+    return results; 
+  }
+
+  /**
+   * Adds reply to comment
+   * @param data 
+   * @param user 
+   * @returns reply to comment 
+   */
+  async addReplyToComment(data: ReplyInput, user: User): Promise<Comment> {
     const post =  await  this.postService.post(data.postId)
     if (!post) throw new BadRequestException("No post exists!");
 

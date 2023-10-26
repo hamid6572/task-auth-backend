@@ -1,5 +1,5 @@
-import { Resolver, Args, Query, Mutation } from "@nestjs/graphql";
-import { UseGuards } from "@nestjs/common";
+import { Resolver, Args, Query, Mutation, ResolveField, Parent } from "@nestjs/graphql";
+import { Post, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { GqlAuthGuard } from "./guards/gql-auth.guard";
@@ -7,10 +7,14 @@ import { LoginInput } from "./dto/input/auth-input";
 import { LoginResponse } from "./dto/output/auth-response";
 import { UserInput } from "./dto/input/user-input";
 import { User } from "./entities/user.entity";
+import { PostService } from "../post/post.service";
 
-@Resolver()
+@Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    //private readonly postService: PostService
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Query(() => User)
@@ -28,4 +32,9 @@ export class UserResolver {
   async register(@Args("createUser") createUser: UserInput) {
     return await this.userService.createUser(createUser);
   }
+
+  // @ResolveField(() => [Post])
+  // async posts(@Parent() user: User) {
+  //   return this.postService.postsByUserId(user.id);
+  // }
 }

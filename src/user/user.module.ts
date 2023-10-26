@@ -9,6 +9,7 @@ import { LocalStrategy } from './strategy/local.strategy';
 import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from '../common/common.module';
+import { PostModule } from '../post/post.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { CommonModule } from '../common/common.module';
       secret: process.env.JWT_SECRET,
     }),
     TypeOrmModule.forFeature([User]),
-    CommonModule
+    CommonModule,
+    //PostModule
   ],
   providers: [
     UserService, 

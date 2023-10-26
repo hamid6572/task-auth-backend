@@ -11,7 +11,7 @@ export class CommentPostService {
   ) {}
 
   async deletePostAndComments(id: number,user: User){
-    await this.commentService.deleteCommentAndReplies(id, user);
+    await this.commentService.deleteCommentAndRepliesByRawQuery(id, user);
     return this.postService.deletePost(id, user);
   }
 }

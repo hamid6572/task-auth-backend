@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args, Query } from "@nestjs/graphql";
+import { Resolver, Mutation, Args, Query, ResolveField, Parent } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { PostService } from "./post.service";
 import { postInput } from "./dto/input/post-input";
@@ -9,7 +9,7 @@ import { Post } from "./entities/post.entity";
 import { SearchInput } from "./dto/input/search-input";
 import { PostPaginationInput } from "./dto/input/post-pagination-input";
 
-@Resolver()
+@Resolver(() => Post)
 export class PostResolver {
   constructor(private readonly postService: PostService) {}
 
@@ -51,5 +51,10 @@ export class PostResolver {
   @Query(() => [Post])
   async paginatedPosts(@Args() paginationInput: PostPaginationInput): Promise<Post[]> {
     return this.postService.paginatedPosts(paginationInput)
+  }
+
+  @ResolveField(() => User)
+  async user(@Parent() post: Post) {
+    return this.postService.getUserByPostId(post.id);
   }
 }
