@@ -1,5 +1,6 @@
-import { Resolver, Args, Query, Mutation, ResolveField, Parent } from "@nestjs/graphql";
-import { Post, UseGuards } from "@nestjs/common";
+import { Resolver, Args, Query, Mutation } from "@nestjs/graphql";
+import { UseGuards } from "@nestjs/common";
+
 import { UserService } from "./user.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { GqlAuthGuard } from "./guards/gql-auth.guard";
@@ -7,14 +8,10 @@ import { LoginInput } from "./dto/input/auth-input";
 import { LoginResponse } from "./dto/output/auth-response";
 import { UserInput } from "./dto/input/user-input";
 import { User } from "./entities/user.entity";
-import { PostService } from "../post/post.service";
 
 @Resolver(() => User)
 export class UserResolver {
-  constructor(
-    private readonly userService: UserService,
-    //private readonly postService: PostService
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
   @Query(() => User)

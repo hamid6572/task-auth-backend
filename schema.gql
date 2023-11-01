@@ -7,7 +7,7 @@ type Comment {
   parent: Comment
   post: Post!
   replies: [Comment!]
-  text: String!
+  text: String
   user: User!
 }
 
@@ -39,7 +39,7 @@ type Mutation {
 }
 
 type Post {
-  comments: [Comment!]!
+  comments: [Comment!]
   content: String!
   id: Float!
   status: PostStatus!

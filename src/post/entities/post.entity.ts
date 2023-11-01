@@ -1,7 +1,8 @@
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+
 import { User } from '../../user/entities/user.entity';
 import { Comment } from '../../comment/entities/comment.entity';
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { BaseEntity } from '../../common/base.entity';
 
 export enum PostStatus {
@@ -15,7 +16,7 @@ registerEnumType(PostStatus, {
 
 @Entity()
 @ObjectType()
-export class Post  extends BaseEntity  {
+export class Post extends BaseEntity  {
   @PrimaryGeneratedColumn()
   @Field()
   id: number;
@@ -41,6 +42,6 @@ export class Post  extends BaseEntity  {
   user: User;
 
   @OneToMany(() => Comment, (comment) => comment.post)
-  @Field(() => [Comment])
+  @Field(() => [Comment],{ nullable: true })
   comments: Comment[];
 }

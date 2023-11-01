@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Post } from '../../post/entities/post.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -12,7 +12,7 @@ export class Comment extends BaseEntity {
   id: number;
 
   @Column({ type: 'text' })
-  @Field()
+  @Field({ nullable: true })
   text: string;
 
   @ManyToOne(() => User, (user) => user.comments)

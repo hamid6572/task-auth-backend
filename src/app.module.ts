@@ -1,20 +1,21 @@
 import { HttpStatus, Module } from "@nestjs/common";
-import { AppResolver } from "./app.resolver";
 import { ConfigModule } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
-import { GraphQLError, GraphQLFormattedError } from "graphql";
-import { PostModule } from "./post/post.module";
-import { UserModule } from "./user/user.module";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { APP_FILTER } from "@nestjs/core";
-import { GlobalErrorInterceptor } from "./middleware/error.middleware";
+import { GraphQLError, GraphQLFormattedError } from "graphql";
+
+import { AppResolver } from "./app.resolver";
+import { PostModule } from "./post/post.module";
+import { UserModule } from "./user/user.module";
 import { CommentModule } from "./comment/comment.module";
 import { CommonModule } from './common/common.module';
 import { CommentPostModule } from "./comment-post/comment-post.module";
 import { SearchModule } from './search/search.module';
+import { GlobalErrorInterceptor } from "./middleware/error.middleware";
 
 @Module({
   imports: [

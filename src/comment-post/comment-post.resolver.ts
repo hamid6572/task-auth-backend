@@ -1,10 +1,11 @@
 import { Resolver, Mutation, Args } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../user/guards/jwt-auth.guard";
+
+import { CommentPostService } from "./comment-post.service";
 import { CurrentUser } from "../decorators/current-user.decorator";
 import { User } from "../user/entities/user.entity";
 import { Post } from "../post/entities/post.entity";
-import { CommentPostService } from "./comment-post.service";
+import { JwtAuthGuard } from "../user/guards/jwt-auth.guard";
 
 @Resolver()
 export class CommentPostResolver {

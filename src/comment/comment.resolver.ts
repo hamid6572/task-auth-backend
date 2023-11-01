@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args, Query } from "@nestjs/graphql";
+import { Resolver, Mutation, Args, Query, ResolveField, Parent } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { CommentInput } from "./dto/input/comment-input";
 import { JwtAuthGuard } from "../user/guards/jwt-auth.guard";
@@ -7,8 +7,9 @@ import { CommentService } from "./comment.service";
 import { User } from "../user/entities/user.entity";
 import { Comment } from "./entities/comment.entity";
 import { ReplyInput } from "./dto/input/reply-input";
+import { Post } from "../post/entities/post.entity";
 
-@Resolver()
+@Resolver(() => Comment)
 export class CommentResolver {
   constructor(private readonly commentService: CommentService) {}
 
@@ -53,5 +54,15 @@ export class CommentResolver {
     @CurrentUser() user: User
   ) {
     return this.commentService.addReplyToComment(data, user);
+  }
+
+  @ResolveField(() => User)
+  async user(@Parent() comment: Comment) {
+    return this.commentService.getUserByCommentId(comment.id);
+  }
+
+  @ResolveField(() => Post)
+  async post(@Parent() comment: Comment) {
+    return this.commentService.getPostByCommentId(comment.id);
   }
 }
