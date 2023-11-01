@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert, BeforeUpdate, } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
 import { Comment } from '../../comment/entities/comment.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from '../../common/base.entity';
+import { hashSync } from "bcryptjs";
 
 @Entity()
 @ObjectType()
@@ -34,4 +35,10 @@ export class User extends BaseEntity{
   @OneToMany(() => Comment, (comment) => comment.user)
   @Field(() => [Comment])
   comments: Comment[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+      this.password = await hashSync(this.password)
+  }
 }

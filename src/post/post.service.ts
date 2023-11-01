@@ -1,12 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+
 import { postInput } from "./dto/input/post-input";
 import { PostRepository } from "./post.repository";
 import { PostPaginationInput } from "./dto/input/post-pagination-input";
 import { User } from "../user/entities/user.entity";
 import { SearchInput } from "./dto/input/search-input";
-import SearchService from "../search/search.service";
 import { UserRepository } from "../user/user.repository";
 import { Post } from "./entities/post.entity";
+import { SearchService } from "../search/search.service";
 
 @Injectable()
 export class PostService {
@@ -15,7 +16,7 @@ export class PostService {
     private readonly userRepository: UserRepository,
     private readonly searchService: SearchService, 
  
-    ) {}
+  ) {}
 
   /**
    * Addposts post service
@@ -23,18 +24,12 @@ export class PostService {
    * @param user 
    * @returns addpost 
    */
-  async addpost(data: postInput, user: User) : Promise<Post> {    
-    const post = await this.postRepository.create({...data, user:user});
-    if (!post)  throw new BadRequestException("No posts created, Something went Wrong!");
+  async addPost(data: postInput, { id }: User) : Promise<Post> {    
+    const user = await this.userRepository.findOne({ where: { id } });
+    const post = this.postRepository.create({...data, user});
+    const postSaved = await this.postRepository.save(post);
+    if (!postSaved)  throw new BadRequestException("No posts created, Something went Wrong!");
 
-    const userObject = await this.userRepository.findOne({ where: { id: user.id } });
-    await this.postRepository.save(post);
-  
-    post.user.firstName = userObject.firstName;
-    post.user.lastName = userObject.lastName;
-    post.user.email = userObject.email;
-
-    this.searchService.indexPost(post);
     return post;
   }
 
@@ -47,7 +42,6 @@ export class PostService {
     const post = await this.postRepository
         .createQueryBuilder('post')
         .where({id: Number(id)})
-        .leftJoinAndSelect('post.user', 'user')
         .leftJoinAndSelect('post.comments', 'comment')
         .getOne()
     if (!post) throw new BadRequestException("No post exists!");
@@ -62,30 +56,16 @@ export class PostService {
   async posts()  : Promise<Post[]> {
     const posts = await this.postRepository
         .createQueryBuilder('post')
-        .leftJoinAndSelect('post.user', 'user')
         .leftJoinAndSelect('post.comments', 'comment')
         .getMany()
+    const results = await this.searchService.searchAll();
+    console.log("results===>", results);
+
     if (!posts) throw new BadRequestException("No post exists!");
     
     return posts;
   }
-
-  /**
-   * Posts by user id
-   * @param id 
-   * @returns by user id 
-   */
-  async postsByUserId(id: number)  : Promise<Post[]> {
-    const posts = await this.postRepository
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.user', 'user')
-        .where('user.id = :id', { id })
-        .getMany()
-    if (!posts) throw new BadRequestException("No post exists!");
-
-    return posts;
-  }
-
+  
   /**
    * Updates post
    * @param id 
@@ -93,14 +73,13 @@ export class PostService {
    * @param user 
    * @returns post 
    */
-  async updatePost(id: number ,data: postInput,user: User) : Promise<Post> {
-    const post = await this.postRepository.findOne({ where: { id, user } });
+  async updatePost(id: number ,data: postInput, user: User) : Promise<Post> {
+    const post = await this.postRepository.findOne({ where: { id } });
     if (!post)  throw new NotFoundException("Post not found or you don't have permission to edit it.");
   
     post.title = data.title;
     post.content = data.content;
     const updatedPost = await this.postRepository.save(post);  
-    await this.searchService.update(updatedPost);
 
     return updatedPost;
   }
@@ -112,29 +91,34 @@ export class PostService {
    * @returns post 
    */
   async deletePost(id: number,user: User) : Promise<Post> {
-    const post = await this.postRepository.findOne({ where: { id, user } });
+    const post = await this.postRepository.findOne({ where: { id } });
     if (!post) throw new NotFoundException("Post not found or you don't have permission to delete it.");
-    const deletedPost = await this.postRepository.remove(post);
-    await this.searchService.delete(id);
+
+    const deletedPost = await this.postRepository.remove(post);    
 
     return deletedPost;
   }
-
-  /**
+  
+/**
    * Searchs posts
    * @param input 
    * @returns posts 
    */
   async searchPosts(input: string) : Promise<Post[]> {
-    const results = await this.searchService.search(input) as Post[];
-    const ids = results.map(result => result.id);    
-    if (!ids.length) return [];
+    const results:any = await this.searchService.search(input);
+    let posts = []
+    
+    for (let result of results){
+      if (result._index === 'comments') {
+        const post = await this.postRepository.findOne({ where: { id:result._source.postId } });
+        let updatedPost = { ...post, comments: [...(post.comments || []), result._source] };
+        
+        posts.push(updatedPost)
+      }
+      else posts.push(result._source);
+    }
 
-    return await this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
-      .where('post.id IN (:...ids)', { ids })
-      .getMany();
+    return posts
   }
 
   /**
@@ -194,7 +178,6 @@ export class PostService {
     const skip = (page - 1) * itemsPerPage;
     return this.postRepository
       .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
       .skip(skip)
       .take(itemsPerPage)
       .getMany();

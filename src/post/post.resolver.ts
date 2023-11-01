@@ -6,7 +6,6 @@ import { JwtAuthGuard } from "../user/guards/jwt-auth.guard";
 import { CurrentUser } from "../decorators/current-user.decorator";
 import { User } from "../user/entities/user.entity";
 import { Post } from "./entities/post.entity";
-import { SearchInput } from "./dto/input/search-input";
 import { PostPaginationInput } from "./dto/input/post-pagination-input";
 
 @Resolver(() => Post)
@@ -16,7 +15,7 @@ export class PostResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Post)
   async createPost(@Args("data") data: postInput, @CurrentUser() user: User) {
-    return this.postService.addpost(data, user);
+    return this.postService.addPost(data, user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -40,7 +39,7 @@ export class PostResolver {
   ) {
     return this.postService.updatePost(id, data, user)
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Query(() => [Post], { name: 'search' })
   async searchPosts(@Args('input') input: string): Promise<(Post | User)[]> {

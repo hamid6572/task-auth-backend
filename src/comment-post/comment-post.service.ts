@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { User } from "../user/entities/user.entity";
 import { CommentService } from "../comment/comment.service";
 import { PostService } from "../post/post.service";

@@ -11,4 +11,5 @@ export default new DataSource({
   url: configService.get<string>('DATABASE_URL'),
   entities: ['**/*.entity{.ts,.js}'],
   migrations: ['migrations/*.ts'],
+  subscribers: [`./src/post/post.subscriber.ts`]
 });

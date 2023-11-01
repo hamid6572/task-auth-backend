@@ -1,11 +1,12 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+
 import { CommentInput } from "./dto/input/comment-input";
 import { CommentRepository } from "./comment.repository";
 import { PostService } from "../post/post.service";
 import { User } from "../user/entities/user.entity";
 import { ReplyInput } from "./dto/input/reply-input";
 import { Comment } from "./entities/comment.entity";
-import { EntityManager } from 'typeorm';
+import { Post } from "../post/entities/post.entity";
 
 @Injectable()
 export class CommentService {
@@ -40,8 +41,6 @@ export class CommentService {
     const comment = await this.commentRepository
       .createQueryBuilder('comment')
       .where({id: id})
-      .leftJoinAndSelect('comment.post', 'post')
-      .leftJoinAndSelect('comment.user', 'user')
       .getOne()
     if (!comment) throw new BadRequestException("No comment exists!");
       
@@ -57,8 +56,6 @@ export class CommentService {
   async commentsByPost(postId: number) : Promise<Comment[]> {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.post', 'post')
-      .leftJoinAndSelect('comment.user', 'user')
       .where('post.id = :postId', { postId })
       .getMany()
     if (!comments) return null;
@@ -75,8 +72,6 @@ export class CommentService {
   async comments() : Promise<Comment[]> {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.post', 'post')
-      .leftJoinAndSelect('comment.user', 'user')
       .where('comment.parent IS NULL') 
       .getMany();
   
@@ -97,8 +92,6 @@ export class CommentService {
   private async buildNestedReplies(comment: Comment): Promise<Comment[]> {
     const replies = await this.commentRepository
       .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.post', 'post')
-      .leftJoinAndSelect('comment.user', 'user')
       .where('comment.parent = :commentId', { commentId: comment.id })
       .getMany();
   
@@ -120,7 +113,7 @@ export class CommentService {
    * @returns comment 
    */
   async updateComment(id: number, data: CommentInput, user: User) : Promise<Comment>{    
-    const comment = await this.commentRepository.findOne({ where: { id, user } });
+    const comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) throw new NotFoundException("Comment not found or you don't have permission to edit it.");
 
     comment.text = data.text;
@@ -150,10 +143,8 @@ export class CommentService {
         await this.deleteCommentAndRepliesRecursive(reply);
       }
     }
-    
     await this.commentRepository.remove(comment);
   }
-
 
   /**
    * Deletes comment and replies by query
@@ -167,7 +158,6 @@ export class CommentService {
         SELECT comment.id, comment.text, comment."parentId", comment."postId"
         FROM public.comment comment
         WHERE comment."postId" = ${id}
-        and comment."userId" = ${user.id}
         UNION
         SELECT child.id,  child.text, child."parentId", child."postId"
         FROM CommentHierarchy ch, public.comment child
@@ -212,5 +202,37 @@ export class CommentService {
       post,
       parent: parentComment,
     });
+  }
+
+  /**
+   * Gets user by comment id
+   * @param id 
+   * @returns user by comment id 
+   */
+  async getUserByCommentId(id: number)  : Promise<User> {
+    const comment = await this.commentRepository    
+        .createQueryBuilder('comment')
+        .leftJoinAndSelect('comment.user', 'user')
+        .where({ id })
+        .getOne()
+    if (!comment) throw new BadRequestException("No comment exists!");
+
+    return comment.user;
+  }
+
+  /**
+   * Gets post by comment id
+   * @param id 
+   * @returns post by comment id 
+   */
+  async getPostByCommentId(id: number)  : Promise<Post> {
+    const comment = await this.commentRepository    
+        .createQueryBuilder('comment')
+        .leftJoinAndSelect('comment.post', 'post')
+        .where({ id })
+        .getOne()
+    if (!comment) throw new BadRequestException("No comment exists!");
+
+    return comment.post;
   }
 }
