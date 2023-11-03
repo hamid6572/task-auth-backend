@@ -23,7 +23,9 @@ export class CommentSubscriber implements EntitySubscriberInterface<Comment> {
         await this.searchService.updateComment( event.entity as Comment );
     }
   
-    async afterRemove(event: RemoveEvent<Comment>) {
-        await this.searchService.deleteComment( event.entityId );
-    }
+    // async afterRemove(event: RemoveEvent<Comment>) {
+    //     console.log("remove event here ", event);
+        
+    //     await this.searchService.deleteComment( event.entityId );
+    // }
 }

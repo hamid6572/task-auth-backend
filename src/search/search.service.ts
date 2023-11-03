@@ -141,14 +141,14 @@ export class SearchService {
    * @param commentId 
    * @returns  
    */
-  async deleteComment(commentId: number) {
+  async deleteComment(commentIds) {
     return this.elasticsearchClient.deleteByQuery({
       index: this.indexComments,
       body: {
         query: {
-          term: {
-            id: commentId
-          }       
+          ids: {
+            values: commentIds
+          }
         },
       },
     });
