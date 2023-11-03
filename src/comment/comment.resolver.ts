@@ -8,6 +8,7 @@ import { User } from "../user/entities/user.entity";
 import { Comment } from "./entities/comment.entity";
 import { ReplyInput } from "./dto/input/reply-input";
 import { Post } from "../post/entities/post.entity";
+import { SuccessResponse } from "../post/dto/success-response";
 
 @Resolver(() => Comment)
 export class CommentResolver {
@@ -42,9 +43,9 @@ export class CommentResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => [Number])
+  @Mutation(() => SuccessResponse)
   async deleteCommentByPost(@Args("postId") postId: number) {
-    return this.commentService.deleteCommentAndRepliesByRawQuery(postId);
+    return this.commentService.deleteCommentAndReplies(postId);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -8,14 +8,13 @@ import { User } from "../user/entities/user.entity";
 import { ReplyInput } from "./dto/input/reply-input";
 import { Comment } from "./entities/comment.entity";
 import { Post } from "../post/entities/post.entity";
-import { SearchService } from "../search/search.service";
+import { SuccessResponse } from "../post/dto/success-response";
 
 @Injectable()
 export class CommentService {
   constructor(
     private readonly commentRepository: CommentRepository,
     private readonly postService: PostService,
-    private readonly searchService: SearchService
   ) {}
 
   /**
@@ -57,6 +56,9 @@ export class CommentService {
    * @returns by post 
    */
   async commentsByPost(postId: number) : Promise<Comment[]> {
+    const post =  await  this.postService.post(postId)
+    if (!post) throw new BadRequestException("No post exists!");
+
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .where('post.id = :postId', { postId })
@@ -123,67 +125,27 @@ export class CommentService {
   }
 
   /**
-   * Deletes comment and replies
-   * @param id 
-   * @param user 
-   * @returns comment and replies 
-   */
-  async deleteCommentAndReplies(id: number, user: User) : Promise<Comment[]>{
-    const comments = await this.commentsByPost(id);
-    if (!comments) throw new NotFoundException("Comment not found or you don't have permission to delete it.");
-  
-    for (const comment of comments) {
-      await this.deleteCommentAndRepliesRecursive(comment);
-    }
-  
-    return comments;
-  }
-  
-  async deleteCommentAndRepliesRecursive(comment: Comment) {
-    if (comment.replies) {
-      for (const reply of comment.replies) {
-        await this.deleteCommentAndRepliesRecursive(reply);
-      }
-    }
-    await this.commentRepository.remove(comment);
-  }
-
-  /**
    * Deletes comment and replies by query
    * @param id 
    * @param user 
    * @returns comment and replies by query 
    */
-  async deleteCommentAndRepliesByRawQuery(id: number, manager?: EntityManager) : Promise<Comment[]>{
-    let results:any;
-    const rawQuery = `
-      WITH RECURSIVE CommentIds AS (
-        SELECT comment.id
-        FROM public.comment comment
-        WHERE comment."postId" = ${id}
-        UNION
-        SELECT child.id
-        FROM CommentIds ch, public.comment child
-        WHERE child."parentId" = ch.id
-      )
-      SELECT id FROM CommentIds;   
-    `;
-    const commentIds = (await this.commentRepository.query(rawQuery)).map(idObj => idObj.id);
+  async deleteCommentAndReplies(id: number, manager?:EntityManager) : Promise<SuccessResponse>{
+    const post =  await  this.postService.post(id)
+    if (!post) throw new BadRequestException("No post exists!");
     let queryBy =  manager ? manager : this.commentRepository
 
-    if(commentIds.length !== 0){
-      results = await queryBy
-        .createQueryBuilder()
-        .delete()
-        .from(Comment)
-        .where('id IN (:...commentIds)', { commentIds: commentIds })
-        .execute();
-    }
-    else 
-      throw new BadRequestException("No comments Exists!");
-    await this.searchService.deleteComment( commentIds );
+    const deleteResult = await queryBy
+      .createQueryBuilder()
+      .delete()
+      .from(Comment)
+      .where('postId = :postId', { postId: id })
+      .execute();
+      console.log(deleteResult);
+    if (deleteResult.affected === 0) 
+      throw new BadRequestException("No Comment exists!");
 
-    return commentIds; 
+    return new SuccessResponse('Comments deleted successfully'); 
   }
 
   /**

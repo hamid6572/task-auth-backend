@@ -23,7 +23,7 @@ export class Comment extends BaseEntity {
   @Field(() => Post)
   post: Post;
 
-  @ManyToOne(() => Comment, (parent) => parent.replies)
+  @ManyToOne(() => Comment, (parent) => parent.replies, { onDelete: 'CASCADE' })
   @Field(() => Comment, { nullable: true })
   parent: Comment;
 

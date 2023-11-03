@@ -30,8 +30,8 @@ type Mutation {
   addReplyToComment(data: ReplyInput!): Comment!
   createComment(data: CommentInput!): Comment!
   createPost(data: postInput!): Post!
-  deleteCommentByPost(postId: Float!): [Float!]!
-  deletePost(id: Float!): Post!
+  deleteCommentByPost(postId: Float!): SuccessResponse!
+  deletePost(id: Float!): SuccessResponse!
   login(loginData: LoginInput!): LoginResponse!
   register(createUser: UserInput!): LoginResponse!
   updateComment(data: CommentInput!, id: Float!): Comment!
@@ -67,6 +67,11 @@ input ReplyInput {
   commentId: Float
   postId: Float
   text: String!
+}
+
+type SuccessResponse {
+  message: String
+  success: Boolean
 }
 
 type User {
