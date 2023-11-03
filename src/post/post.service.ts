@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { EntityManager } from "typeorm";
 
 import { postInput } from "./dto/input/post-input";
 import { PostRepository } from "./post.repository";
@@ -15,7 +16,6 @@ export class PostService {
     private readonly postRepository: PostRepository,
     private readonly userRepository: UserRepository,
     private readonly searchService: SearchService, 
- 
   ) {}
 
   /**
@@ -59,8 +59,6 @@ export class PostService {
         .leftJoinAndSelect('post.comments', 'comment')
         .getMany()
     const results = await this.searchService.searchAll();
-    console.log("results===>", results);
-
     if (!posts) throw new BadRequestException("No post exists!");
     
     return posts;
@@ -90,12 +88,11 @@ export class PostService {
    * @param user 
    * @returns post 
    */
-  async deletePost(id: number,user: User) : Promise<Post> {
+  async deletePost(id: number, manager:EntityManager) : Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
     if (!post) throw new NotFoundException("Post not found or you don't have permission to delete it.");
 
-    const deletedPost = await this.postRepository.remove(post);    
-
+    const deletedPost = await manager.remove(post);
     return deletedPost;
   }
   
@@ -105,20 +102,34 @@ export class PostService {
    * @returns posts 
    */
   async searchPosts(input: string) : Promise<Post[]> {
-    const results:any = await this.searchService.search(input);
-    let posts = []
+    const results: any = await this.searchService.search(input);
+    const posts: any[] = [];
+    const postMap: Map<number, any> = new Map();
+    //console.log(results);
     
-    for (let result of results){
-      if (result._index === 'comments') {
-        const post = await this.postRepository.findOne({ where: { id:result._source.postId } });
-        let updatedPost = { ...post, comments: [...(post.comments || []), result._source] };
-        
-        posts.push(updatedPost)
-      }
-      else posts.push(result._source);
-    }
+    for (const result of results) {
+      const postId = result._source.postId;
+      const post = await this.postRepository
+          .createQueryBuilder('post')
+          .select(['post.id', 'post.title', 'post.content'])
+          .where('post.id = :id', { id: postId })
+          .getOne();
 
-    return posts
+      if (result._index === 'comments' && postMap.has(postId)) {  //comment already there with post    
+        if (!postMap.get(postId).comments) postMap.get(postId).comments = [];
+        postMap.get(postId).comments.push(result._source);
+      } 
+      else if (result._index === 'comments' && post){             //pushing post of comment with searched text
+        post.comments = [result._source];
+        postMap.set(postId, post);
+      } 
+      else if (result._index === 'posts' && !postMap.has(result._source.id)){    // pushing post if not already pushed from comments searched
+        postMap.set(result._source.id, result._source); 
+      }
+    }
+  
+    posts.push(...Array.from(postMap.values()));
+    return posts;
   }
 
   /**

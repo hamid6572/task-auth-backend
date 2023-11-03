@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { EntityManager } from "typeorm";
 
 import { CommentInput } from "./dto/input/comment-input";
 import { CommentRepository } from "./comment.repository";
@@ -7,12 +8,14 @@ import { User } from "../user/entities/user.entity";
 import { ReplyInput } from "./dto/input/reply-input";
 import { Comment } from "./entities/comment.entity";
 import { Post } from "../post/entities/post.entity";
+import { SearchService } from "../search/search.service";
 
 @Injectable()
 export class CommentService {
   constructor(
     private readonly commentRepository: CommentRepository,
-    private readonly postService: PostService
+    private readonly postService: PostService,
+    private readonly searchService: SearchService
   ) {}
 
   /**
@@ -79,8 +82,7 @@ export class CommentService {
     for (const comment of comments) {
       comment.replies = await this.buildNestedReplies(comment);
     }
-  //  console.dir(comments, {depth: null});
-
+    
     return comments;
   }
   
@@ -152,24 +154,36 @@ export class CommentService {
    * @param user 
    * @returns comment and replies by query 
    */
-  async deleteCommentAndRepliesByRawQuery(id: number, user: User) : Promise<Comment[]>{
+  async deleteCommentAndRepliesByRawQuery(id: number, manager?: EntityManager) : Promise<Comment[]>{
+    let results:any;
     const rawQuery = `
-      WITH RECURSIVE CommentHierarchy AS (
-        SELECT comment.id, comment.text, comment."parentId", comment."postId"
+      WITH RECURSIVE CommentIds AS (
+        SELECT comment.id
         FROM public.comment comment
         WHERE comment."postId" = ${id}
         UNION
-        SELECT child.id,  child.text, child."parentId", child."postId"
-        FROM CommentHierarchy ch, public.comment child
+        SELECT child.id
+        FROM CommentIds ch, public.comment child
         WHERE child."parentId" = ch.id
       )
-      DELETE FROM public.comment
-      USING CommentHierarchy
-      WHERE public.comment.id = CommentHierarchy.id;
+      SELECT id FROM CommentIds;   
     `;
-    const results = await this.commentRepository.query(rawQuery);
+    const commentIds = (await this.commentRepository.query(rawQuery)).map(idObj => idObj.id);
+    let queryBy =  manager ? manager : this.commentRepository
 
-    return results; 
+    if(commentIds.length !== 0){
+      results = await queryBy
+        .createQueryBuilder()
+        .delete()
+        .from(Comment)
+        .where('id IN (:...commentIds)', { commentIds: commentIds })
+        .execute();
+    }
+    else 
+      throw new BadRequestException("No comments Exists!");
+    await this.searchService.deleteComment( commentIds );
+
+    return commentIds; 
   }
 
   /**

@@ -3,12 +3,11 @@ import { DataSource, EntitySubscriberInterface, EventSubscriber, InsertEvent, Re
 
 import { Post } from "./entities/post.entity"
 import { SearchService } from "../search/search.service";
-import { PostService } from "./post.service";
 
 @EventSubscriber()
 @Injectable()
 export class PostSubscriber implements EntitySubscriberInterface<Post> {
-    constructor(private dataSource: DataSource,private searchService: SearchService,private postService: PostService ) {
+    constructor(private dataSource: DataSource,private searchService: SearchService ) {
        this.dataSource.subscribers.push(this); 
     }
 

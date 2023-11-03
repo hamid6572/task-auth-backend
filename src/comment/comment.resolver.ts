@@ -42,9 +42,9 @@ export class CommentResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => [Comment])
-  async deleteCommentByPost(@Args("postId") postId: number, @CurrentUser() user: User) {
-    return this.commentService.deleteCommentAndRepliesByRawQuery(postId, user);
+  @Mutation(() => [Number])
+  async deleteCommentByPost(@Args("postId") postId: number) {
+    return this.commentService.deleteCommentAndRepliesByRawQuery(postId);
   }
 
   @UseGuards(JwtAuthGuard)
