@@ -26,6 +26,8 @@ export class PostService {
    */
   async addPost(data: postInput, { id }: User) : Promise<Post> {    
     const user = await this.userRepository.findOne({ where: { id } });
+    if (!user)  throw new NotFoundException("User not found or you don't have permission to create post.");
+
     const post = this.postRepository.create({...data, user});
     const postSaved = await this.postRepository.save(post);
     if (!postSaved)  throw new BadRequestException("No posts created, Something went Wrong!");
@@ -91,7 +93,7 @@ export class PostService {
   async deletePost(id: number, manager:EntityManager) : Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
     if (!post) throw new NotFoundException("Post not found or you don't have permission to delete it.");
-
+                      
     const deletedPost = await manager.remove(post);
     return deletedPost;
   }
