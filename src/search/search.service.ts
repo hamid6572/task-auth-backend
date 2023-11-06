@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { Client } from '@elastic/elasticsearch';
 
@@ -6,55 +5,62 @@ import { PostSearchBody } from './dto/post-search-body';
 import { Post } from '../post/entities/post.entity';
 import { CommentSearchBody } from './dto/comment-search-body';
 import { Comment } from '../comment/entities/comment.entity';
+import { DeleteByQueryResponse, SearchResponse, UpdateByQueryResponse, WriteResponseBase } from '@elastic/elasticsearch/lib/api/types';
+import { ElasticSearchResponse } from './dto/search-response';
 
 @Injectable()
 export class SearchService {
-  indexPosts = 'posts'
-  indexComments = 'comments'
+  indexPosts = 'posts';
+  indexComments = 'comments';
   private readonly elasticsearchClient: Client;
+
   constructor() {
     this.elasticsearchClient = new Client({ node: 'http://localhost:9200' });
   }
- 
+
   /**
-   * Indexs post
-   * @param post 
+   * Index a post
+   * @param post
    */
-  async indexPost(post: Post) {
-    const { id, title, content }=  post;    
+  async indexPost(post: Post): Promise<WriteResponseBase> {
+    const { id, title, content } = post;
     const { firstName, lastName, email } = post.user;
 
-    let postIndices = await this.elasticsearchClient.index<PostSearchBody>({
+    const postIndices = await this.elasticsearchClient.index<PostSearchBody>({
       index: this.indexPosts,
-      body: { id, title, content, user: { firstName, lastName, email } }
+      body: { id, title, content, user: { firstName, lastName, email } },
     });
 
     return postIndices;
   }
- 
+
   /**
-   * Indexs comment
-   * @param comment 
-   * @returns  
+   * Index a comment
+   * @param comment
+   * @returns
    */
-  async indexComment(comment: Comment) {
-    const { id, text } = comment;  
-    let commentIndices = await this.elasticsearchClient.index<CommentSearchBody>({
+  async indexComment(comment: Comment): Promise<WriteResponseBase> {
+    const { id, text } = comment;
+    const commentIndices = await this.elasticsearchClient.index<CommentSearchBody>({
       index: this.indexComments,
-      body: { 
-        id, text, postId: comment.post.id
-      }
+      body: {
+        id,
+        text,
+        postId: comment.post.id,
+      },
     });
+
     return commentIndices;
   }
+
 
   /**
    * Searchs search service
    * @param text 
    * @returns search 
    */
-  async search(text: string){
-    const body = await this.elasticsearchClient.search({
+  async search(text: string): Promise<SearchResponse<ElasticSearchResponse>> {
+    const body = await this.elasticsearchClient.search<ElasticSearchResponse>({
       index: `${this.indexPosts},${this.indexComments}`,
       body: {
         "query": {
@@ -96,70 +102,67 @@ export class SearchService {
       }
     });
         
-    return body.hits.hits;
+    return body;
   }
 
   /**
-   * Searchs all
-   * @param text 
+   * Search for all items
+   * @param text
    */
-  async searchAll(){
-    const  bodyAll  = await this.elasticsearchClient.search({
+  async searchAll(): Promise<SearchResponse<ElasticSearchResponse>> {
+    const bodyAll = await this.elasticsearchClient.search<ElasticSearchResponse>({
       index: this.indexComments,
       body: {
         query: {
-          match_all: {}, 
+          match_all: {},
         },
       },
-      size: 10000, 
+      size: 10000,
     });
-    const hitsAll = bodyAll.hits.hits.map((hit) => hit._source);
-    return hitsAll;
+    return bodyAll;
   }
 
   /**
-   * Deletes search service
-   * @param postId 
-   * @returns delete 
+   * Delete a post
+   * @param postId
+   * @returns delete
    */
-
-  async deletePost(postId: number) {
+  async deletePost(postId: number): Promise<DeleteByQueryResponse> {
     return this.elasticsearchClient.deleteByQuery({
       index: this.indexPosts,
       body: {
         query: {
           term: {
-            id: postId
-          }       
+            id: postId,
+          },
         },
       },
     });
   }
 
   /**
-   * Deletes comment
-   * @param commentId 
-   * @returns  
+   * Delete a comment
+   * @param commentIds
+   * @returns
    */
-  async deleteComment(commentIds) {
+  async deleteComment(commentIds: string[]): Promise<DeleteByQueryResponse> {
     return this.elasticsearchClient.deleteByQuery({
       index: this.indexComments,
       body: {
         query: {
           ids: {
-            values: commentIds
-          }
+            values: commentIds,
+          },
         },
       },
     });
   }
 
-
   /**
-   * Updates search service
-   * @param post 
+   * Update a post
+   * @param post
    */
-  async updatePost(post: Post) {
+  async updatePost(post: Post): Promise<UpdateByQueryResponse> {
     const newBody: PostSearchBody = {
       id: post.id,
       title: post.title,
@@ -189,11 +192,11 @@ export class SearchService {
   }
 
   /**
-   * Updates comment
-   * @param comment 
-   * @returns  
+   * Update a comment
+   * @param comment
+   * @returns
    */
-  async updateComment(comment: Comment) {
+  async updateComment(comment: Comment): Promise<UpdateByQueryResponse> {
     const newBody = {
       id: comment.id,
       text: comment.text,
@@ -220,10 +223,10 @@ export class SearchService {
   }
 
   /**
-   * Creates mappings
-   * @returns  
+   * Create mappings
+   * @returns
    */
-  async createMappings (){
+  async createMappings(): Promise<unknown> {
     return this.elasticsearchClient.updateByQuery({
       index: this.indexPosts,
       script: {

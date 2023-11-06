@@ -24,10 +24,10 @@ export class CommentService {
    * @returns addcomment 
    */
   async addcomment(data: CommentInput, user: User): Promise<Comment> {  
-    const post =  await  this.postService.post(data.postId)
+    const post: Post | null =  await this.postService.post(data.postId);
     if (!post) throw new BadRequestException("No post exists!");
 
-    const comment = await this.commentRepository.save({...data, user:user, post: post});
+    const comment: Comment = await this.commentRepository.save({...data, user, post});
     if (!comment)
       throw new BadRequestException("No comments created, Something went Wrong!");
 
@@ -39,11 +39,11 @@ export class CommentService {
    * @param id 
    * @returns comment 
    */
-  async comment(id: number) : Promise<Comment> {
-    const comment = await this.commentRepository
+  async comment(id: number): Promise<Comment> {
+    const comment: Comment | undefined = await this.commentRepository
       .createQueryBuilder('comment')
-      .where({id: id})
-      .getOne()
+      .where({ id: id })
+      .getOne();
     if (!comment) throw new BadRequestException("No comment exists!");
       
     comment.replies = await this.buildNestedReplies(comment);
@@ -51,31 +51,31 @@ export class CommentService {
   }
 
   /**
-   * Comments by post
+   * Get comments by post
    * @param postId 
-   * @returns by post 
+   * @returns comments by post 
    */
-  async commentsByPost(postId: number) : Promise<Comment[]> {
-    const post =  await  this.postService.post(postId)
+  async commentsByPost(postId: number): Promise<Comment[]> {
+    const post: Post | null =  await this.postService.post(postId);
     if (!post) throw new BadRequestException("No post exists!");
 
-    const comments = await this.commentRepository
+    const comments: Comment[] | null = await this.commentRepository
       .createQueryBuilder('comment')
       .where('post.id = :postId', { postId })
-      .getMany()
-    if (!comments) return null;
-      
+      .getMany();
+    if (!comments) return [];
+
     for (const comment of comments)
       comment.replies = await this.buildNestedReplies(comment);
     return comments;
   }
 
   /**
-   * Comments comment service
+   * Get comments service
    * @returns comments 
    */
-  async comments() : Promise<Comment[]> {
-    const comments = await this.commentRepository
+  async comments(): Promise<Comment[]> {
+    const comments: Comment[] = await this.commentRepository
       .createQueryBuilder('comment')
       .where('comment.parent IS NULL') 
       .getMany();
@@ -94,7 +94,7 @@ export class CommentService {
    * @returns nested replies 
    */
   private async buildNestedReplies(comment: Comment): Promise<Comment[]> {
-    const replies = await this.commentRepository
+    const replies: Comment[] = await this.commentRepository
       .createQueryBuilder('comment')
       .where('comment.parent = :commentId', { commentId: comment.id })
       .getMany();
@@ -114,10 +114,10 @@ export class CommentService {
    * @param id 
    * @param data 
    * @param user 
-   * @returns comment 
+   * @returns updated comment 
    */
-  async updateComment(id: number, data: CommentInput, user: User) : Promise<Comment>{    
-    const comment = await this.commentRepository.findOne({ where: { id } });
+  async updateComment(id: number, data: CommentInput, user: User): Promise<Comment> {    
+    const comment: Comment | undefined = await this.commentRepository.findOne({ where: { id } });
     if (!comment) throw new NotFoundException("Comment not found or you don't have permission to edit it.");
 
     comment.text = data.text;
@@ -128,12 +128,12 @@ export class CommentService {
    * Deletes comment and replies by query
    * @param id 
    * @param user 
-   * @returns comment and replies by query 
+   * @returns comment and replies deleted by query 
    */
-  async deleteCommentAndReplies(id: number, manager?:EntityManager) : Promise<SuccessResponse>{
-    const post =  await  this.postService.post(id)
+  async deleteCommentAndReplies(id: number, manager?: EntityManager): Promise<SuccessResponse> {
+    const post: Post | null = await this.postService.post(id);
     if (!post) throw new BadRequestException("No post exists!");
-    let queryBy =  manager ? manager : this.commentRepository
+    let queryBy = manager ? manager : this.commentRepository;
 
     const deleteResult = await queryBy
       .createQueryBuilder()
@@ -141,7 +141,7 @@ export class CommentService {
       .from(Comment)
       .where('postId = :postId', { postId: id })
       .execute();
-      console.log(deleteResult);
+      
     if (deleteResult.affected === 0) 
       throw new BadRequestException("No Comment exists!");
 
@@ -149,19 +149,19 @@ export class CommentService {
   }
 
   /**
-   * Adds reply to comment
+   * Adds a reply to a comment
    * @param data 
    * @param user 
-   * @returns reply to comment 
+   * @returns a reply to a comment 
    */
   async addReplyToComment(data: ReplyInput, user: User): Promise<Comment> {
-    const post =  await  this.postService.post(data.postId)
+    const post: Post | null =  await this.postService.post(data.postId);
     if (!post) throw new BadRequestException("No post exists!");
 
-    const comment = await this.comment(data.commentId);
+    const comment: Comment | undefined = await this.comment(data.commentId);
     if (!comment) throw new NotFoundException("Comment not found!");
 
-    let parentComment = await this.commentRepository
+    let parentComment: Comment | undefined = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.parent', 'parent') 
       .leftJoinAndSelect('parent.parent', 'grandparent')
@@ -169,7 +169,7 @@ export class CommentService {
       .getOne();
     if (!parentComment) throw new NotFoundException('Parent comment not found');
 
-    //restricting replies to double nested only
+    // Restricting replies to double nested only
     if (parentComment?.parent?.parent) parentComment = parentComment.parent 
 
     return this.commentRepository.save({
@@ -185,12 +185,12 @@ export class CommentService {
    * @param id 
    * @returns user by comment id 
    */
-  async getUserByCommentId(id: number)  : Promise<User> {
-    const comment = await this.commentRepository    
+  async getUserByCommentId(id: number): Promise<User> {
+    const comment: Comment | undefined = await this.commentRepository    
         .createQueryBuilder('comment')
         .leftJoinAndSelect('comment.user', 'user')
         .where({ id })
-        .getOne()
+        .getOne();
     if (!comment) throw new BadRequestException("No comment exists!");
 
     return comment.user;
@@ -201,12 +201,12 @@ export class CommentService {
    * @param id 
    * @returns post by comment id 
    */
-  async getPostByCommentId(id: number)  : Promise<Post> {
-    const comment = await this.commentRepository    
+  async getPostByCommentId(id: number): Promise<Post> {
+    const comment: Comment | undefined = await this.commentRepository    
         .createQueryBuilder('comment')
         .leftJoinAndSelect('comment.post', 'post')
         .where({ id })
-        .getOne()
+        .getOne();
     if (!comment) throw new BadRequestException("No comment exists!");
 
     return comment.post;

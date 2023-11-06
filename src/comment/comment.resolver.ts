@@ -16,19 +16,19 @@ export class CommentResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Comment)
-  async createComment(@Args("data") data: CommentInput, @CurrentUser() user: User) {
+  async createComment(@Args("data") data: CommentInput, @CurrentUser() user: User): Promise<Comment> {
     return this.commentService.addcomment(data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Comment)
-  async getComment(@Args("id") id: number) {
+  async getComment(@Args("id") id: number): Promise<Comment> {
     return this.commentService.comment(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Comment])
-  async listComments() {
+  async listComments(): Promise<Comment[]> {
     return await this.commentService.comments();
   }
 
@@ -38,13 +38,13 @@ export class CommentResolver {
     @Args("id") id: number,
     @Args("data") data: CommentInput,
     @CurrentUser() user: User
-  ) {
+  ): Promise<Comment> {
     return this.commentService.updateComment(id, data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
-  async deleteCommentByPost(@Args("postId") postId: number) {
+  async deleteCommentByPost(@Args("postId") postId: number): Promise<SuccessResponse> {
     return this.commentService.deleteCommentAndReplies(postId);
   }
 
@@ -53,17 +53,17 @@ export class CommentResolver {
   async addReplyToComment(
     @Args("data") data: ReplyInput,
     @CurrentUser() user: User
-  ) {
+  ): Promise<Comment> {
     return this.commentService.addReplyToComment(data, user);
   }
 
   @ResolveField(() => User)
-  async user(@Parent() comment: Comment) {
+  async user(@Parent() comment: Comment): Promise<User> {
     return this.commentService.getUserByCommentId(comment.id);
   }
 
   @ResolveField(() => Post)
-  async post(@Parent() comment: Comment) {
+  async post(@Parent() comment: Comment): Promise<Post> {
     return this.commentService.getPostByCommentId(comment.id);
   }
 }

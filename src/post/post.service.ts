@@ -19,10 +19,10 @@ export class PostService {
   ) {}
 
   /**
-   * Addposts post service
-   * @param data 
-   * @param user 
-   * @returns addpost 
+   * Add posts post service
+   * @param data
+   * @param user
+   * @returns added post
    */
   async addPost(data: postInput, { id }: User) : Promise<Post> {    
     const user = await this.userRepository.findOne({ where: { id } });
@@ -30,86 +30,86 @@ export class PostService {
 
     const post = this.postRepository.create({...data, user});
     const postSaved = await this.postRepository.save(post);
-    if (!postSaved)  throw new BadRequestException("No posts created, Something went Wrong!");
+    if (!postSaved) throw new BadRequestException("No posts created, Something went Wrong!");
 
     return post;
   }
 
   /**
-   * Posts post service
-   * @param id 
-   * @returns post 
+   * Get a post by its ID
+   * @param id
+   * @returns a post
    */
-  async post(id: number) : Promise<Post> {
+  async post(id: number): Promise<Post> {
     const post = await this.postRepository
-        .createQueryBuilder('post')
-        .where({id: Number(id)})
-        .leftJoinAndSelect('post.comments', 'comment')
-        .getOne()
+      .createQueryBuilder('post')
+      .where({ id })
+      .leftJoinAndSelect('post.comments', 'comment')
+      .getOne();
     if (!post) throw new BadRequestException("No post exists!");
 
     return post;
   }
 
   /**
-   * Posts post service
-   * @returns posts 
+   * Get all posts
+   * @returns posts
    */
-  async posts()  : Promise<Post[]> {
+  async posts(): Promise<Post[]> {
     const posts = await this.postRepository
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.comments', 'comment')
-        .getMany()
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.comments', 'comment')
+      .getMany();
+
     const results = await this.searchService.searchAll();
     if (!posts) throw new BadRequestException("No post exists!");
-    
+
     return posts;
   }
-  
+
   /**
-   * Updates post
-   * @param id 
-   * @param data 
-   * @param user 
-   * @returns post 
+   * Update a post
+   * @param id
+   * @param data
+   * @param user
+   * @returns updated post
    */
-  async updatePost(id: number ,data: postInput, user: User) : Promise<Post> {
+  async updatePost(id: number, data: postInput, user: User): Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
-    if (!post)  throw new NotFoundException("Post not found or you don't have permission to edit it.");
-  
+    if (!post) throw new NotFoundException("Post not found or you don't have permission to edit it.");
+
     post.title = data.title;
     post.content = data.content;
-    const updatedPost = await this.postRepository.save(post);  
+    const updatedPost = await this.postRepository.save(post);
 
     return updatedPost;
   }
 
   /**
-   * Deletes post
-   * @param id 
-   * @param user 
-   * @returns post 
+   * Delete a post
+   * @param id
+   * @param manager
+   * @returns deleted post
    */
-  async deletePost(id: number, manager:EntityManager) : Promise<Post> {
+  async deletePost(id: number, manager: EntityManager): Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
     if (!post) throw new NotFoundException("Post not found or you don't have permission to delete it.");
-                      
+
     const deletedPost = await manager.remove(post);
     return deletedPost;
   }
-  
-/**
-   * Searchs posts
-   * @param input 
-   * @returns posts 
+
+  /**
+   * Search for posts
+   * @param input
+   * @returns matching posts
    */
-  async searchPosts(input: string) : Promise<Post[]> {
+  async searchPosts(input: string): Promise<Post[]> {
     const results: any = await this.searchService.search(input);
-    const posts: any[] = [];
-    const postMap: Map<number, any> = new Map();
-    //console.log(results);
-    
-    for (const result of results) {
+    const posts: Post[] = [];
+    const postMap: Map<number, Post> = new Map();
+
+    for (const result of results.hits.hits) {
       const postId = result._source.postId;
       const post = await this.postRepository
           .createQueryBuilder('post')
@@ -129,18 +129,18 @@ export class PostService {
         postMap.set(result._source.id, result._source); 
       }
     }
-  
+
     posts.push(...Array.from(postMap.values()));
     return posts;
   }
 
   /**
-   * Searchs posts by filters
-   * @param input 
-   * @returns posts by filters 
+   * Search for posts by filters
+   * @param input
+   * @returns matching posts
    */
-  async searchPostsByFilters(input: SearchInput) : Promise<Post[]> {
-    const { firstName, lastName, email, title } = input;    
+  async searchPostsByFilters(input: SearchInput): Promise<Post[]> {
+    const { firstName, lastName, email, title } = input;
     const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
@@ -159,17 +159,17 @@ export class PostService {
         }
       })
       .getMany();
-        
+
     return posts;
   }
 
   /**
-   * Searchs posts by query
-   * @param input 
-   * @returns posts by query 
+   * Search for posts by query
+   * @param input
+   * @returns matching posts
    */
-  async searchPostsByQuery(input: string) : Promise<Post[]> {
-      const posts = await this.postRepository
+  async searchPostsByQuery(input: string): Promise<Post[]> {
+    const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .orWhere('user.firstName LIKE :firstName', { firstName: `%${input}%` })
@@ -177,16 +177,16 @@ export class PostService {
       .orWhere('user.email LIKE :email', { email: `%${input}%` })
       .orWhere('post.title LIKE :title', { title: `%${input}%` })
       .getMany();
-        
+
     return posts;
   }
 
   /**
-   * Paginated posts
-   * @param paginationInput 
-   * @returns posts 
+   * Get paginated posts
+   * @param paginationInput
+   * @returns paginated posts
    */
-  async paginatedPosts(paginationInput: PostPaginationInput) : Promise<Post[]> {
+  async paginatedPosts(paginationInput: PostPaginationInput): Promise<Post[]> {
     const { page, itemsPerPage } = paginationInput;
     const skip = (page - 1) * itemsPerPage;
     return this.postRepository
@@ -197,16 +197,16 @@ export class PostService {
   }
 
   /**
-   * Gets user by post id
-   * @param id 
-   * @returns user by post id 
+   * Get user by post id
+   * @param id
+   * @returns user by post id
    */
-  async getUserByPostId(id: number)  : Promise<User> {
+  async getUserByPostId(id: number): Promise<User> {
     const post = await this.postRepository
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.user', 'user')
-        .where({ id })
-        .getOne()
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where({ id })
+      .getOne();
     if (!post) throw new BadRequestException("No user exists!");
 
     return post.user;

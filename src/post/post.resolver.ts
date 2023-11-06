@@ -14,19 +14,19 @@ export class PostResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Post)
-  async createPost(@Args("data") data: postInput, @CurrentUser() user: User) {
+  async createPost(@Args("data") data: postInput, @CurrentUser() user: User): Promise<Post> {
     return this.postService.addPost(data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Post)
-  async getPost(@Args("id") id: number) {
+  async getPost(@Args("id") id: number): Promise<Post> {
     return this.postService.post(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Post])
-  async listPosts() {
+  async listPosts(): Promise<Post[]> {
     return this.postService.posts();
   }
 
@@ -36,24 +36,24 @@ export class PostResolver {
     @Args("id") id: number,
     @Args("data") data: postInput,
     @CurrentUser() user: User
-  ) {
-    return this.postService.updatePost(id, data, user)
+  ): Promise<Post> {
+    return this.postService.updatePost(id, data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Post], { name: 'search' })
   async searchPosts(@Args('input') input: string): Promise<(Post | User)[]> {
-    return this.postService.searchPosts(input)
+    return this.postService.searchPosts(input);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Post])
   async paginatedPosts(@Args() paginationInput: PostPaginationInput): Promise<Post[]> {
-    return this.postService.paginatedPosts(paginationInput)
+    return this.postService.paginatedPosts(paginationInput);
   }
 
   @ResolveField(() => User)
-  async user(@Parent() post: Post) {
+  async user(@Parent() post: Post): Promise<User> {
     return this.postService.getUserByPostId(post.id);
   }
 }
