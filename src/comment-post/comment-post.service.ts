@@ -23,7 +23,7 @@ private readonly dataSource: DataSource
     await queryRunner.startTransaction()
 
     try {
-        await this.commentService.deleteCommentAndReplies(id);
+        await this.commentService.deleteCommentAndReplies(id,queryRunner.manager);
         post = await this.postService.deletePost(id, queryRunner.manager);
 
         await queryRunner.commitTransaction()
