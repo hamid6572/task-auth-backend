@@ -5,6 +5,6 @@ import { CommonRepositoryFactory } from './common.repository';
 @Module({
   imports: [],
   providers: [CommonService, CommonRepositoryFactory],
-  exports: [CommonService, CommonRepositoryFactory]
+  exports: [CommonService, CommonRepositoryFactory],
 })
 export class CommonModule {}

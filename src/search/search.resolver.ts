@@ -1,10 +1,10 @@
-import { Resolver, Args, Query } from "@nestjs/graphql";
-import { SearchService } from "./search.service";
+import { Resolver, Args, Query } from '@nestjs/graphql';
+import { SearchService } from './search.service';
 
 @Resolver()
 export class SearchResolver {
   constructor(private readonly searchService: SearchService) {}
-  
+
   // @UseGuards(JwtAuthGuard)
   // @Query(() => [SearchDto], { name: 'search' })
   // async globalSearch(@Args('input') input: string): Promise<SearchDto[]> {

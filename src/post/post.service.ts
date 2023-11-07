@@ -1,17 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { EntityManager } from "typeorm";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { EntityManager } from 'typeorm';
 
-import { postInput } from "./dto/input/post-input";
-import { PostRepository } from "./post.repository";
-import { PostPaginationInput } from "./dto/input/post-pagination-input";
-import { User } from "../user/entities/user.entity";
-import { SearchInput } from "./dto/input/search-input";
-import { UserRepository } from "../user/user.repository";
-import { Post } from "./entities/post.entity";
-import { SearchService } from "../search/search.service";
-import { Comment } from "../comment/entities/comment.entity";
-import { CommonService } from "../common/common.service";
-import { SuccessResponse } from "./dto/success-response";
+import { postInput } from './dto/input/post-input';
+import { PostRepository } from './post.repository';
+import { PostPaginationInput } from './dto/input/post-pagination-input';
+import { User } from '../user/entities/user.entity';
+import { SearchInput } from './dto/input/search-input';
+import { UserRepository } from '../user/user.repository';
+import { Post } from './entities/post.entity';
+import { SearchService } from '../search/search.service';
+import { Comment } from '../comment/entities/comment.entity';
+import { CommonService } from '../common/common.service';
+import { SuccessResponse } from './dto/success-response';
 
 @Injectable()
 export class PostService {
@@ -28,12 +32,22 @@ export class PostService {
    * @param user
    * @returns added post
    */
-  async addPost({title, content}: postInput, { id }: User) : Promise<SuccessResponse> {    
+  async addPost(
+    { title, content }: postInput,
+    { id }: User,
+  ): Promise<SuccessResponse> {
     const user = await this.userRepository.findOne({ where: { id } });
-    if (!user)  throw new NotFoundException("User not found or you don't have permission to create post.");
+    if (!user)
+      throw new NotFoundException(
+        "User not found or you don't have permission to create post.",
+      );
 
-    const postSaved = await this.commonService.insertEntity(Object.assign(new Post(), { title, content, user }), Post);
-    if (!postSaved) throw new BadRequestException("No posts created, Something went Wrong!");
+    const postSaved = await this.commonService.insertEntity(
+      Object.assign(new Post(), { title, content, user }),
+      Post,
+    );
+    if (!postSaved)
+      throw new BadRequestException('No posts created, Something went Wrong!');
 
     return new SuccessResponse('Post Created successfully');
   }
@@ -49,7 +63,7 @@ export class PostService {
       .where({ id })
       .leftJoinAndSelect('post.comments', 'comment')
       .getOne();
-    if (!post) throw new BadRequestException("No post exists!");
+    if (!post) throw new BadRequestException('No post exists!');
 
     return post;
   }
@@ -65,7 +79,7 @@ export class PostService {
       .getMany();
 
     const results = await this.searchService.searchAll();
-    if (!posts) throw new BadRequestException("No post exists!");
+    if (!posts) throw new BadRequestException('No post exists!');
 
     return posts;
   }
@@ -77,14 +91,28 @@ export class PostService {
    * @param user
    * @returns updated post
    */
-  async updatePost(id: number, {title, content}: postInput, user: User): Promise<SuccessResponse> {
+  async updatePost(
+    id: number,
+    { title, content }: postInput,
+    user: User,
+  ): Promise<SuccessResponse> {
     const post = await this.postRepository.findOne({ where: { id } });
-    if (!post) throw new NotFoundException("Post not found or you don't have permission to edit it.");
+    if (!post)
+      throw new NotFoundException(
+        "Post not found or you don't have permission to edit it.",
+      );
 
-    const updatedPost  = await this.commonService.updateEntity(id, Object.assign(post, { title, content, user }), Post);
-    if (!updatedPost) throw new NotFoundException("Unable to update post, Something went wrong.");
-   
-    return new SuccessResponse('Post Updated successfully'); 
+    const updatedPost = await this.commonService.updateEntity(
+      id,
+      Object.assign(post, { title, content, user }),
+      Post,
+    );
+    if (!updatedPost)
+      throw new NotFoundException(
+        'Unable to update post, Something went wrong.',
+      );
+
+    return new SuccessResponse('Post Updated successfully');
   }
 
   /**
@@ -95,7 +123,10 @@ export class PostService {
    */
   async deletePost(id: number, manager: EntityManager): Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
-    if (!post) throw new NotFoundException("Post not found or you don't have permission to delete it.");
+    if (!post)
+      throw new NotFoundException(
+        "Post not found or you don't have permission to delete it.",
+      );
 
     const deletedPost = await manager.remove(post);
     return deletedPost;
@@ -107,31 +138,44 @@ export class PostService {
    * @returns matching posts
    */
   async searchPosts(input: string): Promise<Post[]> {
-    let fieldsToSearch: string[] = ["title", "content", "user.firstName", "user.lastName", "user.email", "text"];
-    const results = await this.searchService.search(input, fieldsToSearch, 'posts', 'comments');
+    let fieldsToSearch: string[] = [
+      'title',
+      'content',
+      'user.firstName',
+      'user.lastName',
+      'user.email',
+      'text',
+    ];
+    const results = await this.searchService.search(
+      input,
+      fieldsToSearch,
+      'posts',
+      'comments',
+    );
     const posts = [];
     const postMap = new Map();
 
     for (const result of results.hits.hits) {
       const postId = result._source.postId;
       const post = await this.postRepository
-          .createQueryBuilder('post')
-          .select(['post.id', 'post.title', 'post.content'])
-          .where('post.id = :id', { id: postId })
-          .getOne();
+        .createQueryBuilder('post')
+        .select(['post.id', 'post.title', 'post.content'])
+        .where('post.id = :id', { id: postId })
+        .getOne();
 
-      if (result._index === 'comments' && postMap.has(postId)) {  //comment already there with post    
+      if (result._index === 'comments' && postMap.has(postId)) {
+        //comment already there with post
         if (!postMap.get(postId).comments) postMap.get(postId).comments = [];
         postMap.get(postId).comments.push(result._source);
-      } 
-      else if (result._index === 'comments' && post){             //pushing post of comment with searched text
+      } else if (result._index === 'comments' && post) {
+        //pushing post of comment with searched text
         const { id, text } = result._source;
         post.comments.push(Object.assign(new Comment(), { id, text }));
 
         postMap.set(postId, post);
-      } 
-      else if (result._index === 'posts' && !postMap.has(result._source.id)){    // pushing post if not already pushed from comments searched
-        postMap.set(result._source.id, result._source); 
+      } else if (result._index === 'posts' && !postMap.has(result._source.id)) {
+        // pushing post if not already pushed from comments searched
+        postMap.set(result._source.id, result._source);
       }
     }
 
@@ -144,16 +188,25 @@ export class PostService {
    * @param input
    * @returns matching posts
    */
-  async searchPostsByFilters( { firstName, lastName, email, title }: SearchInput): Promise<Post[]> {
+  async searchPostsByFilters({
+    firstName,
+    lastName,
+    email,
+    title,
+  }: SearchInput): Promise<Post[]> {
     const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .where(qb => {
         if (firstName) {
-          qb.orWhere('user.firstName LIKE :firstName', { firstName: `%${firstName}%` });
+          qb.orWhere('user.firstName LIKE :firstName', {
+            firstName: `%${firstName}%`,
+          });
         }
         if (lastName) {
-          qb.orWhere('user.lastName LIKE :lastName', { lastName: `%${lastName}%` });
+          qb.orWhere('user.lastName LIKE :lastName', {
+            lastName: `%${lastName}%`,
+          });
         }
         if (email) {
           qb.orWhere('user.email LIKE :email', { email: `%${email}%` });
@@ -211,7 +264,7 @@ export class PostService {
       .leftJoinAndSelect('post.user', 'user')
       .where({ id })
       .getOne();
-    if (!post) throw new BadRequestException("No user exists!");
+    if (!post) throw new BadRequestException('No user exists!');
 
     return post.user;
   }

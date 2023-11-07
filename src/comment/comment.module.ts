@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommentService } from './comment.service';
 import { CommentResolver } from './comment.resolver';
@@ -14,9 +14,14 @@ import { CommonModule } from '../common/common.module';
     TypeOrmModule.forFeature([Comment]),
     PostModule,
     SearchModule,
-    CommonModule
+    CommonModule,
   ],
-  providers: [CommentService, CommentResolver, CommentRepository, CommentSubscriber],
-  exports: [CommentService, CommentRepository]
+  providers: [
+    CommentService,
+    CommentResolver,
+    CommentRepository,
+    CommentSubscriber,
+  ],
+  exports: [CommentService, CommentRepository],
 })
 export class CommentModule {}

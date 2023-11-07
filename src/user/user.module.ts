@@ -20,12 +20,12 @@ import { User } from './entities/user.entity';
     CommonModule,
   ],
   providers: [
-    UserService, 
-    UserResolver, 
-    UserRepository, 
-    JwtAuthService,   
+    UserService,
+    UserResolver,
+    UserRepository,
+    JwtAuthService,
     JwtStrategy,
-    LocalStrategy
+    LocalStrategy,
   ],
   exports: [UserService, UserRepository],
 })

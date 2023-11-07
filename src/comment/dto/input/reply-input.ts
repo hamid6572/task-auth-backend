@@ -1,5 +1,5 @@
-import { Field, InputType } from "@nestjs/graphql";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Field, InputType } from '@nestjs/graphql';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 @InputType()
 export class ReplyInput {
@@ -8,11 +8,11 @@ export class ReplyInput {
   @IsString()
   text: string;
 
-  @Field( { nullable: true })
+  @Field({ nullable: true })
   @IsNumber()
   postId?: number;
 
-  @Field( { nullable: true })
+  @Field({ nullable: true })
   @IsNumber()
   commentId?: number;
 }

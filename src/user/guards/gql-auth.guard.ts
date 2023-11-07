@@ -1,10 +1,10 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
-import { GqlExecutionContext } from "@nestjs/graphql";
-import { AuthGuard } from "@nestjs/passport";
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class GqlAuthGuard extends AuthGuard("AuthUser") {
-  constructor() {    
+export class GqlAuthGuard extends AuthGuard('AuthUser') {
+  constructor() {
     super();
   }
 
@@ -13,7 +13,7 @@ export class GqlAuthGuard extends AuthGuard("AuthUser") {
     const request = ctx.getContext().req;
     request.user = ctx.getArgs().loginData;
     request.body = ctx.getArgs().loginData;
-        
+
     return request;
   }
 }

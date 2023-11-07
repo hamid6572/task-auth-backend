@@ -14,9 +14,9 @@ import { CommonModule } from '../common/common.module';
     TypeOrmModule.forFeature([Post]),
     UserModule,
     SearchModule,
-    CommonModule
+    CommonModule,
   ],
   providers: [PostService, PostResolver, PostRepository, PostSubscriber],
-  exports: [PostService]
+  exports: [PostService],
 })
 export class PostModule {}

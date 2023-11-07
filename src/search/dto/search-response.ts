@@ -1,5 +1,5 @@
-import { Field, ObjectType, Float, Int } from "@nestjs/graphql";
-import { UserForElasticsearch } from "./post-search-body";
+import { Field, ObjectType, Float, Int } from '@nestjs/graphql';
+import { UserForElasticsearch } from './post-search-body';
 
 @ObjectType()
 export class ElasticsearchSource {
