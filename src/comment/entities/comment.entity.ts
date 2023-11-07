@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Post } from '../../post/entities/post.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -15,19 +21,19 @@ export class Comment extends BaseEntity {
   @Field({ nullable: true })
   text: string;
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, user => user.comments)
   @Field(() => User)
   user: User;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, post => post.comments)
   @Field(() => Post)
   post: Post;
 
-  @ManyToOne(() => Comment, (parent) => parent.replies, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Comment, parent => parent.replies, { onDelete: 'CASCADE' })
   @Field(() => Comment, { nullable: true })
   parent: Comment;
 
-  @OneToMany(() => Comment, (reply) => reply.parent)
+  @OneToMany(() => Comment, reply => reply.parent)
   @Field(() => [Comment], { nullable: true })
   replies: Comment[];
 }

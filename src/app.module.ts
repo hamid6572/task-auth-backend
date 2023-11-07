@@ -1,21 +1,21 @@
-import { HttpStatus, Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { JwtModule } from "@nestjs/jwt";
-import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { HttpStatus, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { APP_FILTER } from "@nestjs/core";
-import { GraphQLError, GraphQLFormattedError } from "graphql";
+import { APP_FILTER } from '@nestjs/core';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { AppResolver } from "./app.resolver";
-import { PostModule } from "./post/post.module";
-import { UserModule } from "./user/user.module";
-import { CommentModule } from "./comment/comment.module";
+import { AppResolver } from './app.resolver';
+import { PostModule } from './post/post.module';
+import { UserModule } from './user/user.module';
+import { CommentModule } from './comment/comment.module';
 import { CommonModule } from './common/common.module';
-import { CommentPostModule } from "./comment-post/comment-post.module";
+import { CommentPostModule } from './comment-post/comment-post.module';
 import { SearchModule } from './search/search.module';
-import { GlobalErrorInterceptor } from "./middleware/error.middleware";
+import { GlobalErrorInterceptor } from './middleware/error.middleware';
 
 @Module({
   imports: [
@@ -35,22 +35,22 @@ import { GlobalErrorInterceptor } from "./middleware/error.middleware";
         migrationsRun: true,
         entities: ['./**/*.entity{.ts,.js}'],
         synchronize: !!config.get<string>('DB_SYNC') || false,
-//        logging: true,
+        //logging: true,
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: "schema.gql",
+      autoSchemaFile: 'schema.gql',
       sortSchema: true,
       playground: true,
       introspection: true,
-      fieldResolverEnhancers: ["interceptors"],
+      fieldResolverEnhancers: ['interceptors'],
       formatError: (error: GraphQLError | any) => {
         // GraphQLError type
         // => format errors
         console.log(
           JSON.stringify(error),
-          error?.extensions?.response?.message
+          error?.extensions?.response?.message,
         );
         const graphQLFormattedError: GraphQLFormattedError & {
           status: HttpStatus;
@@ -61,7 +61,7 @@ import { GlobalErrorInterceptor } from "./middleware/error.middleware";
           message:
             error?.extensions?.response?.message ||
             error?.message ||
-            "Something went wrong",
+            'Something went wrong',
         };
         return graphQLFormattedError;
       },

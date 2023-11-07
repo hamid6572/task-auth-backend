@@ -1,13 +1,21 @@
-import { Resolver, Mutation, Args, Query, ResolveField, Parent } from "@nestjs/graphql";
-import { UseGuards } from "@nestjs/common";
-import { PostService } from "./post.service";
-import { postInput } from "./dto/input/post-input";
-import { JwtAuthGuard } from "../user/guards/jwt-auth.guard";
-import { CurrentUser } from "../decorators/current-user.decorator";
-import { User } from "../user/entities/user.entity";
-import { Post } from "./entities/post.entity";
-import { PostPaginationInput } from "./dto/input/post-pagination-input";
-import { SuccessResponse } from "./dto/success-response";
+import {
+  Resolver,
+  Mutation,
+  Args,
+  Query,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+
+import { PostService } from './post.service';
+import { postInput } from './dto/input/post-input';
+import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { User } from '../user/entities/user.entity';
+import { Post } from './entities/post.entity';
+import { PostPaginationInput } from './dto/input/post-pagination-input';
+import { SuccessResponse } from './dto/success-response';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -15,13 +23,16 @@ export class PostResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
-  async createPost(@Args("data") data: postInput, @CurrentUser() user: User): Promise<SuccessResponse> {
+  async createPost(
+    @Args('data') data: postInput,
+    @CurrentUser() user: User,
+  ): Promise<SuccessResponse> {
     return this.postService.addPost(data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Post)
-  async getPost(@Args("id") id: number): Promise<Post> {
+  async getPost(@Args('id') id: number): Promise<Post> {
     return this.postService.post(id);
   }
 
@@ -34,9 +45,9 @@ export class PostResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
   async updatePost(
-    @Args("id") id: number,
-    @Args("data") data: postInput,
-    @CurrentUser() user: User
+    @Args('id') id: number,
+    @Args('data') data: postInput,
+    @CurrentUser() user: User,
   ): Promise<SuccessResponse> {
     return this.postService.updatePost(id, data, user);
   }
@@ -49,7 +60,9 @@ export class PostResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Post])
-  async paginatedPosts(@Args() paginationInput: PostPaginationInput): Promise<Post[]> {
+  async paginatedPosts(
+    @Args() paginationInput: PostPaginationInput,
+  ): Promise<Post[]> {
     return this.postService.paginatedPosts(paginationInput);
   }
 

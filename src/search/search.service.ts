@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Client } from '@elastic/elasticsearch';
+import {
+  DeleteByQueryResponse,
+  SearchResponse,
+  UpdateByQueryResponse,
+  WriteResponseBase,
+  AggregationsAggregate,
+} from '@elastic/elasticsearch/lib/api/types';
 
 import { PostSearchBody } from './dto/post-search-body';
 import { Post } from '../post/entities/post.entity';
 import { CommentSearchBody } from './dto/comment-search-body';
 import { Comment } from '../comment/entities/comment.entity';
-import { DeleteByQueryResponse, SearchResponse, UpdateByQueryResponse, WriteResponseBase, AggregationsAggregate } from '@elastic/elasticsearch/lib/api/types';
 import { ElasticsearchSource } from './dto/search-response';
 
 @Injectable()
@@ -41,39 +47,47 @@ export class SearchService {
    */
   async indexComment(comment: Comment): Promise<WriteResponseBase> {
     const { id, text } = comment;
-    const commentIndices = await this.elasticsearchClient.index<CommentSearchBody>({
-      index: this.indexComments,
-      body: {
-        id,
-        text,
-        postId: comment.post.id,
-      },
-    });
+    const commentIndices =
+      await this.elasticsearchClient.index<CommentSearchBody>({
+        index: this.indexComments,
+        body: {
+          id,
+          text,
+          postId: comment.post.id,
+        },
+      });
 
     return commentIndices;
   }
 
-
   /**
    * Searchs search service
-   * @param text 
-   * @returns search 
+   * @param text
+   * @returns search
    */
-  async search(text: string, fieldsToSearch: Array<string>, ...indexes:  Array<string>): Promise<SearchResponse<ElasticsearchSource, Record<string, AggregationsAggregate>>> {
+  async search(
+    text: string,
+    fieldsToSearch: Array<string>,
+    ...indexes: Array<string>
+  ): Promise<
+    SearchResponse<ElasticsearchSource, Record<string, AggregationsAggregate>>
+  > {
     const concatenatedIndexes = indexes.join(',');
-    const wildcardQueries = fieldsToSearch.map(field => ({ wildcard: { [field]: `*${text}*` } }));
-    
+    const wildcardQueries = fieldsToSearch.map(field => ({
+      wildcard: { [field]: `*${text}*` },
+    }));
+
     const body = await this.elasticsearchClient.search<ElasticsearchSource>({
       index: concatenatedIndexes,
       body: {
         query: {
           bool: {
-            should: wildcardQueries
-          }
-        }
-      }
+            should: wildcardQueries,
+          },
+        },
+      },
     });
-        
+
     return body;
   }
 
@@ -202,7 +216,7 @@ export class SearchService {
     return this.elasticsearchClient.updateByQuery({
       index: this.indexPosts,
       script: {
-        source: 'ctx._source.comments = params.comments', 
+        source: 'ctx._source.comments = params.comments',
         params: {
           comments: {
             type: 'nested',

@@ -1,14 +1,21 @@
-import { Resolver, Mutation, Args, Query, ResolveField, Parent } from "@nestjs/graphql";
-import { UseGuards } from "@nestjs/common";
-import { CommentInput } from "./dto/input/comment-input";
-import { JwtAuthGuard } from "../user/guards/jwt-auth.guard";
-import { CurrentUser } from "../decorators/current-user.decorator";
-import { CommentService } from "./comment.service";
-import { User } from "../user/entities/user.entity";
-import { Comment } from "./entities/comment.entity";
-import { ReplyInput } from "./dto/input/reply-input";
-import { Post } from "../post/entities/post.entity";
-import { SuccessResponse } from "../post/dto/success-response";
+import {
+  Resolver,
+  Mutation,
+  Args,
+  Query,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { CommentInput } from './dto/input/comment-input';
+import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { CommentService } from './comment.service';
+import { User } from '../user/entities/user.entity';
+import { Comment } from './entities/comment.entity';
+import { ReplyInput } from './dto/input/reply-input';
+import { Post } from '../post/entities/post.entity';
+import { SuccessResponse } from '../post/dto/success-response';
 
 @Resolver(() => Comment)
 export class CommentResolver {
@@ -16,13 +23,16 @@ export class CommentResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
-  async createComment(@Args("data") data: CommentInput, @CurrentUser() user: User): Promise<SuccessResponse> {
+  async createComment(
+    @Args('data') data: CommentInput,
+    @CurrentUser() user: User,
+  ): Promise<SuccessResponse> {
     return this.commentService.addcomment(data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Comment)
-  async getComment(@Args("id") id: number): Promise<Comment> {
+  async getComment(@Args('id') id: number): Promise<Comment> {
     return this.commentService.comment(id);
   }
 
@@ -35,24 +45,26 @@ export class CommentResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
   async updateComment(
-    @Args("id") id: number,
-    @Args("data") data: CommentInput,
-    @CurrentUser() user: User
+    @Args('id') id: number,
+    @Args('data') data: CommentInput,
+    @CurrentUser() user: User,
   ): Promise<SuccessResponse> {
     return this.commentService.updateComment(id, data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
-  async deleteCommentByPost(@Args("postId") postId: number): Promise<SuccessResponse> {
+  async deleteCommentByPost(
+    @Args('postId') postId: number,
+  ): Promise<SuccessResponse> {
     return this.commentService.deleteCommentAndReplies(postId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Comment)
   async addReplyToComment(
-    @Args("data") data: ReplyInput,
-    @CurrentUser() user: User
+    @Args('data') data: ReplyInput,
+    @CurrentUser() user: User,
   ): Promise<Comment> {
     return this.commentService.addReplyToComment(data, user);
   }
