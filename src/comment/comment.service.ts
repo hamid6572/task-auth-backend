@@ -9,30 +9,33 @@ import { ReplyInput } from "./dto/input/reply-input";
 import { Comment } from "./entities/comment.entity";
 import { Post } from "../post/entities/post.entity";
 import { SuccessResponse } from "../post/dto/success-response";
+import { CommonRepositoryFactory } from "../common/common.repository";
+import { CommonService } from "../common/common.service";
 
 @Injectable()
 export class CommentService {
   constructor(
     private readonly commentRepository: CommentRepository,
     private readonly postService: PostService,
-  ) {}
+    private readonly commonService: CommonService,
+    ) {}
 
   /**
    * Addcomments comment service
-   * @param data 
+   * @param {text, postId} 
    * @param user 
    * @returns addcomment 
    */
-  async addcomment(data: CommentInput, user: User): Promise<Comment> {  
-    const post: Post | null =  await this.postService.post(data.postId);
+  async addcomment({text, postId}: CommentInput, user: User): Promise<SuccessResponse> {  
+    const post: Post | null =  await this.postService.post(postId);
     if (!post) throw new BadRequestException("No post exists!");
 
-    const comment: Comment = await this.commentRepository.save({...data, user, post});
+    const comment = await this.commonService.insertEntity(Object.assign(new Comment(), { text, user }),Comment);
     if (!comment)
       throw new BadRequestException("No comments created, Something went Wrong!");
 
-    return comment;
-  }
+      return new SuccessResponse('Comment Inserted successfully'); 
+    }
 
   /**
    * Comments comment service
@@ -112,16 +115,19 @@ export class CommentService {
   /**
    * Updates comment
    * @param id 
-   * @param data 
+   * @param {text} 
    * @param user 
-   * @returns updated comment 
+   * @returns comment 
    */
-  async updateComment(id: number, data: CommentInput, user: User): Promise<Comment> {    
+  async updateComment(id: number, {text}: CommentInput, user: User): Promise<SuccessResponse> {    
     const comment: Comment | undefined = await this.commentRepository.findOne({ where: { id } });
     if (!comment) throw new NotFoundException("Comment not found or you don't have permission to edit it.");
 
-    comment.text = data.text;
-    return this.commentRepository.save(comment);
+    const updatedComment = await this.commonService.updateEntity(id, Object.assign(comment, { text, user }), Comment);
+    if (!updatedComment)
+      throw new BadRequestException("Unable to update comment, Something went Wrong!");
+
+    return new SuccessResponse('Comment Update successfully'); 
   }
 
   /**

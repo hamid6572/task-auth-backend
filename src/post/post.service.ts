@@ -9,13 +9,17 @@ import { SearchInput } from "./dto/input/search-input";
 import { UserRepository } from "../user/user.repository";
 import { Post } from "./entities/post.entity";
 import { SearchService } from "../search/search.service";
+import { Comment } from "../comment/entities/comment.entity";
+import { CommonService } from "../common/common.service";
+import { SuccessResponse } from "./dto/success-response";
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly userRepository: UserRepository,
-    private readonly searchService: SearchService, 
+    private readonly searchService: SearchService,
+    private readonly commonService: CommonService,
   ) {}
 
   /**
@@ -24,15 +28,14 @@ export class PostService {
    * @param user
    * @returns added post
    */
-  async addPost(data: postInput, { id }: User) : Promise<Post> {    
+  async addPost({title, content}: postInput, { id }: User) : Promise<SuccessResponse> {    
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user)  throw new NotFoundException("User not found or you don't have permission to create post.");
 
-    const post = this.postRepository.create({...data, user});
-    const postSaved = await this.postRepository.save(post);
+    const postSaved = await this.commonService.insertEntity(Object.assign(new Post(), { title, content, user }), Post);
     if (!postSaved) throw new BadRequestException("No posts created, Something went Wrong!");
 
-    return post;
+    return new SuccessResponse('Post Created successfully');
   }
 
   /**
@@ -74,15 +77,14 @@ export class PostService {
    * @param user
    * @returns updated post
    */
-  async updatePost(id: number, data: postInput, user: User): Promise<Post> {
+  async updatePost(id: number, {title, content}: postInput, user: User): Promise<SuccessResponse> {
     const post = await this.postRepository.findOne({ where: { id } });
     if (!post) throw new NotFoundException("Post not found or you don't have permission to edit it.");
 
-    post.title = data.title;
-    post.content = data.content;
-    const updatedPost = await this.postRepository.save(post);
-
-    return updatedPost;
+    const updatedPost  = await this.commonService.updateEntity(id, Object.assign(post, { title, content, user }), Post);
+    if (!updatedPost) throw new NotFoundException("Unable to update post, Something went wrong.");
+   
+    return new SuccessResponse('Post Updated successfully'); 
   }
 
   /**
@@ -105,9 +107,10 @@ export class PostService {
    * @returns matching posts
    */
   async searchPosts(input: string): Promise<Post[]> {
-    const results: any = await this.searchService.search(input);
-    const posts: Post[] = [];
-    const postMap: Map<number, Post> = new Map();
+    let fieldsToSearch: string[] = ["title", "content", "user.firstName", "user.lastName", "user.email", "text"];
+    const results = await this.searchService.search(input, fieldsToSearch, 'posts', 'comments');
+    const posts = [];
+    const postMap = new Map();
 
     for (const result of results.hits.hits) {
       const postId = result._source.postId;
@@ -122,7 +125,9 @@ export class PostService {
         postMap.get(postId).comments.push(result._source);
       } 
       else if (result._index === 'comments' && post){             //pushing post of comment with searched text
-        post.comments = [result._source];
+        const { id, text } = result._source;
+        post.comments.push(Object.assign(new Comment(), { id, text }));
+
         postMap.set(postId, post);
       } 
       else if (result._index === 'posts' && !postMap.has(result._source.id)){    // pushing post if not already pushed from comments searched
@@ -139,8 +144,7 @@ export class PostService {
    * @param input
    * @returns matching posts
    */
-  async searchPostsByFilters(input: SearchInput): Promise<Post[]> {
-    const { firstName, lastName, email, title } = input;
+  async searchPostsByFilters( { firstName, lastName, email, title }: SearchInput): Promise<Post[]> {
     const posts = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')

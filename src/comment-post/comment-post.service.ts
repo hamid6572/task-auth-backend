@@ -9,16 +9,16 @@ import { SuccessResponse } from "../post/dto/success-response";
 @Injectable()
 export class CommentPostService {
   constructor(
-private readonly commentService: CommentService,
+    private readonly commentService: CommentService,
     private readonly postService: PostService,
-private readonly dataSource: DataSource
+    private readonly dataSource: DataSource
   ) {}
 
   async deletePostAndComments(
     id: number,
   ): Promise<SuccessResponse> {
     const queryRunner = this.dataSource.createQueryRunner()
-    let post = new Post();
+    let post = {};
     await queryRunner.connect()
     await queryRunner.startTransaction()
 

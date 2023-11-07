@@ -28,14 +28,14 @@ type LoginResponse {
 
 type Mutation {
   addReplyToComment(data: ReplyInput!): Comment!
-  createComment(data: CommentInput!): Comment!
-  createPost(data: postInput!): Post!
+  createComment(data: CommentInput!): SuccessResponse!
+  createPost(data: postInput!): SuccessResponse!
   deleteCommentByPost(postId: Float!): SuccessResponse!
   deletePost(id: Float!): SuccessResponse!
   login(loginData: LoginInput!): LoginResponse!
   register(createUser: UserInput!): LoginResponse!
-  updateComment(data: CommentInput!, id: Float!): Comment!
-  updatePost(data: postInput!, id: Float!): Post!
+  updateComment(data: CommentInput!, id: Float!): SuccessResponse!
+  updatePost(data: postInput!, id: Float!): SuccessResponse!
 }
 
 type Post {

@@ -15,8 +15,8 @@ export class CommentResolver {
   constructor(private readonly commentService: CommentService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => Comment)
-  async createComment(@Args("data") data: CommentInput, @CurrentUser() user: User): Promise<Comment> {
+  @Mutation(() => SuccessResponse)
+  async createComment(@Args("data") data: CommentInput, @CurrentUser() user: User): Promise<SuccessResponse> {
     return this.commentService.addcomment(data, user);
   }
 
@@ -33,12 +33,12 @@ export class CommentResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => Comment)
+  @Mutation(() => SuccessResponse)
   async updateComment(
     @Args("id") id: number,
     @Args("data") data: CommentInput,
     @CurrentUser() user: User
-  ): Promise<Comment> {
+  ): Promise<SuccessResponse> {
     return this.commentService.updateComment(id, data, user);
   }
 

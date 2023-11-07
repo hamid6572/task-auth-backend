@@ -7,14 +7,15 @@ import { CurrentUser } from "../decorators/current-user.decorator";
 import { User } from "../user/entities/user.entity";
 import { Post } from "./entities/post.entity";
 import { PostPaginationInput } from "./dto/input/post-pagination-input";
+import { SuccessResponse } from "./dto/success-response";
 
 @Resolver(() => Post)
 export class PostResolver {
   constructor(private readonly postService: PostService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => Post)
-  async createPost(@Args("data") data: postInput, @CurrentUser() user: User): Promise<Post> {
+  @Mutation(() => SuccessResponse)
+  async createPost(@Args("data") data: postInput, @CurrentUser() user: User): Promise<SuccessResponse> {
     return this.postService.addPost(data, user);
   }
 
@@ -31,12 +32,12 @@ export class PostResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => Post)
+  @Mutation(() => SuccessResponse)
   async updatePost(
     @Args("id") id: number,
     @Args("data") data: postInput,
     @CurrentUser() user: User
-  ): Promise<Post> {
+  ): Promise<SuccessResponse> {
     return this.postService.updatePost(id, data, user);
   }
 

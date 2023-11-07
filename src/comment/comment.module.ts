@@ -7,12 +7,14 @@ import { PostModule } from '../post/post.module';
 import { Comment } from './entities/comment.entity';
 import { CommentSubscriber } from './comment.subscriber';
 import { SearchModule } from '../search/search.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Comment]),
     PostModule,
-    SearchModule
+    SearchModule,
+    CommonModule
   ],
   providers: [CommentService, CommentResolver, CommentRepository, CommentSubscriber],
   exports: [CommentService, CommentRepository]
