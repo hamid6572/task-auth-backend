@@ -37,7 +37,7 @@ export class CommentService {
     if (!post) throw new BadRequestException('No post exists!');
 
     const comment = await this.commonService.insertEntity(
-      Object.assign(new Comment(), { text, user }),
+      Object.assign(new Comment(), { text, user, post }),
       Comment,
     );
     if (!comment)
@@ -54,10 +54,7 @@ export class CommentService {
    * @returns comment
    */
   async comment(id: number): Promise<Comment> {
-    const comment: Comment | undefined = await this.commentRepository
-      .createQueryBuilder('comment')
-      .where({ id: id })
-      .getOne();
+    const comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) throw new BadRequestException('No comment exists!');
 
     comment.replies = await this.buildNestedReplies(comment);
@@ -73,10 +70,13 @@ export class CommentService {
     const post: Post | null = await this.postService.post(postId);
     if (!post) throw new BadRequestException('No post exists!');
 
-    const comments: Comment[] | null = await this.commentRepository
-      .createQueryBuilder('comment')
-      .where('post.id = :postId', { postId })
-      .getMany();
+    const comments = await this.commentRepository.find({
+      where: {
+        post: {
+          id: postId,
+        },
+      },
+    });
     if (!comments) return [];
 
     for (const comment of comments)
@@ -89,10 +89,9 @@ export class CommentService {
    * @returns comments
    */
   async comments(): Promise<Comment[]> {
-    const comments: Comment[] = await this.commentRepository
-      .createQueryBuilder('comment')
-      .where('comment.parent IS NULL')
-      .getMany();
+    const comments = await this.commentRepository.find({
+      where: { parent: null },
+    });
 
     if (!comments) throw new BadRequestException('No comments exist!');
     for (const comment of comments) {
@@ -108,10 +107,13 @@ export class CommentService {
    * @returns nested replies
    */
   private async buildNestedReplies(comment: Comment): Promise<Comment[]> {
-    const replies: Comment[] = await this.commentRepository
-      .createQueryBuilder('comment')
-      .where('comment.parent = :commentId', { commentId: comment.id })
-      .getMany();
+    const replies = await this.commentRepository.find({
+      where: {
+        parent: {
+          id: comment.id,
+        },
+      },
+    });
 
     if (replies.length > 0) {
       comment.replies = replies;
@@ -221,11 +223,10 @@ export class CommentService {
    * @returns user by comment id
    */
   async getUserByCommentId(id: number): Promise<User> {
-    const comment: Comment | undefined = await this.commentRepository
-      .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.user', 'user')
-      .where({ id })
-      .getOne();
+    const comment = await this.commentRepository.findOne({
+      where: { id },
+      relations: { user: true },
+    });
     if (!comment) throw new BadRequestException('No comment exists!');
 
     return comment.user;
@@ -237,11 +238,10 @@ export class CommentService {
    * @returns post by comment id
    */
   async getPostByCommentId(id: number): Promise<Post> {
-    const comment: Comment | undefined = await this.commentRepository
-      .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.post', 'post')
-      .where({ id })
-      .getOne();
+    const comment = await this.commentRepository.findOne({
+      where: { id },
+      relations: { post: true },
+    });
     if (!comment) throw new BadRequestException('No comment exists!');
 
     return comment.post;
