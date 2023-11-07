@@ -5,8 +5,8 @@ import { PostSearchBody } from './dto/post-search-body';
 import { Post } from '../post/entities/post.entity';
 import { CommentSearchBody } from './dto/comment-search-body';
 import { Comment } from '../comment/entities/comment.entity';
-import { DeleteByQueryResponse, SearchResponse, UpdateByQueryResponse, WriteResponseBase } from '@elastic/elasticsearch/lib/api/types';
-import { ElasticSearchResponse } from './dto/search-response';
+import { DeleteByQueryResponse, SearchResponse, UpdateByQueryResponse, WriteResponseBase, AggregationsAggregate } from '@elastic/elasticsearch/lib/api/types';
+import { ElasticsearchSource } from './dto/search-response';
 
 @Injectable()
 export class SearchService {
@@ -59,44 +59,16 @@ export class SearchService {
    * @param text 
    * @returns search 
    */
-  async search(text: string): Promise<SearchResponse<ElasticSearchResponse>> {
-    const body = await this.elasticsearchClient.search<ElasticSearchResponse>({
-      index: `${this.indexPosts},${this.indexComments}`,
+  async search(text: string, fieldsToSearch: Array<string>, ...indexes:  Array<string>): Promise<SearchResponse<ElasticsearchSource, Record<string, AggregationsAggregate>>> {
+    const concatenatedIndexes = indexes.join(',');
+    const wildcardQueries = fieldsToSearch.map(field => ({ wildcard: { [field]: `*${text}*` } }));
+    
+    const body = await this.elasticsearchClient.search<ElasticsearchSource>({
+      index: concatenatedIndexes,
       body: {
-        "query": {
-          "bool": {
-            "should": [
-              {
-                "wildcard": {
-                  "title": `*${text}*`
-                }
-              },
-              {
-                "wildcard": {
-                  "content": `*${text}*`
-                }
-              },
-              {
-                "wildcard": {
-                  "user.firstName": `*${text}*`
-                }
-              },
-              {
-                "wildcard": {
-                  "user.lastName": `*${text}*`
-                }
-              },
-              {
-                "wildcard": {
-                  "user.email": `*${text}*`
-                }
-              },
-              {
-                "wildcard": {
-                  "text": `*${text}*`
-                }
-              }
-            ]
+        query: {
+          bool: {
+            should: wildcardQueries
           }
         }
       }
@@ -109,8 +81,8 @@ export class SearchService {
    * Search for all items
    * @param text
    */
-  async searchAll(): Promise<SearchResponse<ElasticSearchResponse>> {
-    const bodyAll = await this.elasticsearchClient.search<ElasticSearchResponse>({
+  async searchAll(): Promise<SearchResponse<ElasticsearchSource>> {
+    const bodyAll = await this.elasticsearchClient.search<ElasticsearchSource>({
       index: this.indexComments,
       body: {
         query: {

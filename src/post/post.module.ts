@@ -7,12 +7,14 @@ import { PostRepository } from './post.repository';
 import { UserModule } from '../user/user.module';
 import { SearchModule } from '../search/search.module';
 import { PostSubscriber } from './post.subscriber';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post]),
     UserModule,
-    SearchModule
+    SearchModule,
+    CommonModule
   ],
   providers: [PostService, PostResolver, PostRepository, PostSubscriber],
   exports: [PostService]
