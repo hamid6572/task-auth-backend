@@ -23,12 +23,10 @@ export class UserService {
    * @returns user
    */
   async user(email: any): Promise<User> {
-    return await this.userRepository
-      .createQueryBuilder('user')
-      .where({ email: email })
-      .leftJoinAndSelect('user.posts', 'posts')
-      .leftJoinAndSelect('user.comments', 'comment')
-      .getOne();
+    return await this.userRepository.findOne({
+      where: { email },
+      relations: { posts: true, comments: true },
+    });
   }
 
   /**

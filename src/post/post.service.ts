@@ -58,11 +58,12 @@ export class PostService {
    * @returns a post
    */
   async post(id: number): Promise<Post> {
-    const post = await this.postRepository
-      .createQueryBuilder('post')
-      .where({ id })
-      .leftJoinAndSelect('post.comments', 'comment')
-      .getOne();
+    const post = await this.postRepository.findOne({
+      relations: {
+        comments: true,
+      },
+      where: { id },
+    });
     if (!post) throw new BadRequestException('No post exists!');
 
     return post;
@@ -73,11 +74,11 @@ export class PostService {
    * @returns posts
    */
   async posts(): Promise<Post[]> {
-    const posts = await this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.comments', 'comment')
-      .getMany();
-
+    const posts = await this.postRepository.find({
+      relations: {
+        comments: true,
+      },
+    });
     const results = await this.searchService.searchAll();
     if (!posts) throw new BadRequestException('No post exists!');
 
@@ -259,11 +260,12 @@ export class PostService {
    * @returns user by post id
    */
   async getUserByPostId(id: number): Promise<User> {
-    const post = await this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
-      .where({ id })
-      .getOne();
+    const post = await this.postRepository.findOne({
+      relations: {
+        user: true,
+      },
+      where: { id },
+    });
     if (!post) throw new BadRequestException('No user exists!');
 
     return post.user;
