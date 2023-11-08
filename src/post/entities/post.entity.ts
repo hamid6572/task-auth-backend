@@ -51,3 +51,40 @@ export class Post extends BaseEntity {
   @Field(() => [Comment], { nullable: true })
   comments: Comment[];
 }
+
+export class PostBuilder {
+  private post: Post;
+
+  constructor() {
+    this.post = new Post();
+  }
+
+  setTitle(title: string): PostBuilder {
+    this.post.title = title;
+    return this;
+  }
+
+  setContent(content: string): PostBuilder {
+    this.post.content = content;
+    return this;
+  }
+
+  setStatus(status: PostStatus): PostBuilder {
+    this.post.status = status;
+    return this;
+  }
+
+  update(post: Post): PostBuilder {
+    this.post = post;
+    return this;
+  }
+
+  setUser(user: User): PostBuilder {
+    this.post.user = user;
+    return this;
+  }
+
+  build(): Post {
+    return this.post;
+  }
+}

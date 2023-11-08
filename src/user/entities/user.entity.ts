@@ -50,3 +50,50 @@ export class User extends BaseEntity {
     this.password = await hashSync(this.password);
   }
 }
+
+export class UserBuilder {
+  private user: User;
+
+  constructor() {
+    this.user = new User();
+  }
+
+  setFirstName(firstName: string): UserBuilder {
+    this.user.firstName = firstName;
+    return this;
+  }
+
+  setLastName(lastName: string): UserBuilder {
+    this.user.lastName = lastName;
+    return this;
+  }
+
+  setEmail(email: string): UserBuilder {
+    this.user.email = email;
+    return this;
+  }
+
+  setPassword(password: string): UserBuilder {
+    this.user.password = password;
+    return this;
+  }
+
+  setPosts(posts: Post[]): UserBuilder {
+    this.user.posts = posts;
+    return this;
+  }
+
+  setComments(comments: Comment[]): UserBuilder {
+    this.user.comments = comments;
+    return this;
+  }
+
+  updateUser(user: User): UserBuilder {
+    this.user = user;
+    return this;
+  }
+
+  build(): User {
+    return this.user;
+  }
+}
