@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Like } from 'typeorm';
 
 import { postInput } from './dto/input/post-input';
 import { PostRepository } from './post.repository';
@@ -11,7 +11,7 @@ import { PostPaginationInput } from './dto/input/post-pagination-input';
 import { User } from '../user/entities/user.entity';
 import { SearchInput } from './dto/input/search-input';
 import { UserRepository } from '../user/user.repository';
-import { Post } from './entities/post.entity';
+import { Post, PostBuilder } from './entities/post.entity';
 import { SearchService } from '../search/search.service';
 import { Comment } from '../comment/entities/comment.entity';
 import { CommonService } from '../common/common.service';
@@ -42,10 +42,13 @@ export class PostService {
         "User not found or you don't have permission to create post.",
       );
 
-    const postSaved = await this.commonService.insertEntity(
-      Object.assign(new Post(), { title, content, user }),
-      Post,
-    );
+    const newPost = new PostBuilder()
+      .setTitle(title)
+      .setContent(content)
+      .setUser(user)
+      .build();
+
+    const postSaved = await this.commonService.insertEntity(newPost, Post);
     if (!postSaved)
       throw new BadRequestException('No posts created, Something went Wrong!');
 
@@ -103,12 +106,18 @@ export class PostService {
         "Post not found or you don't have permission to edit it.",
       );
 
-    const updatedPost = await this.commonService.updateEntity(
+    const updatedPost = new PostBuilder()
+      .update(post)
+      .setTitle(title)
+      .setContent(content)
+      .build();
+
+    const resultantPost = await this.commonService.updateEntity(
       id,
-      Object.assign(post, { title, content, user }),
+      updatedPost,
       Post,
     );
-    if (!updatedPost)
+    if (!resultantPost)
       throw new NotFoundException(
         'Unable to update post, Something went wrong.',
       );
@@ -158,11 +167,15 @@ export class PostService {
 
     for (const result of results.hits.hits) {
       const postId = result._source.postId;
-      const post = await this.postRepository
-        .createQueryBuilder('post')
-        .select(['post.id', 'post.title', 'post.content'])
-        .where('post.id = :id', { id: postId })
-        .getOne();
+
+      const post = await this.postRepository.findOne({
+        select: {
+          id: true,
+          title: true,
+          content: true,
+        },
+        where: { id: postId },
+      });
 
       if (result._index === 'comments' && postMap.has(postId)) {
         //comment already there with post
@@ -195,28 +208,22 @@ export class PostService {
     email,
     title,
   }: SearchInput): Promise<Post[]> {
-    const posts = await this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.user', 'user')
-      .where(qb => {
-        if (firstName) {
-          qb.orWhere('user.firstName LIKE :firstName', {
-            firstName: `%${firstName}%`,
-          });
-        }
-        if (lastName) {
-          qb.orWhere('user.lastName LIKE :lastName', {
-            lastName: `%${lastName}%`,
-          });
-        }
-        if (email) {
-          qb.orWhere('user.email LIKE :email', { email: `%${email}%` });
-        }
-        if (title) {
-          qb.orWhere('post.title LIKE :title', { title: `%${title}%` });
-        }
-      })
-      .getMany();
+    const posts = await this.postRepository.find({
+      select: {
+        id: true,
+        title: true,
+        content: true,
+      },
+      where: [
+        { title: Like(`%${title}%`) },
+        { user: { firstName: Like(`%${firstName}%`) } },
+        { user: { lastName: Like(`%${lastName}%`) } },
+        { user: { email: Like(`%${email}%`) } },
+      ],
+      relations: {
+        user: true,
+      },
+    });
 
     return posts;
   }
@@ -246,12 +253,22 @@ export class PostService {
    */
   async paginatedPosts(paginationInput: PostPaginationInput): Promise<Post[]> {
     const { page, itemsPerPage } = paginationInput;
-    const skip = (page - 1) * itemsPerPage;
+
+    //keyset
     return this.postRepository
       .createQueryBuilder('post')
-      .skip(skip)
+      .where('id > :value', { value: page })
       .take(itemsPerPage)
+      .orderBy('id')
       .getMany();
+
+    //offset
+    // const skip = (page - 1) * itemsPerPage;
+    // return this.postRepository
+    //   .createQueryBuilder('post')
+    //   .skip(skip)
+    //   .take(itemsPerPage)
+    //   .getMany();
   }
 
   /**

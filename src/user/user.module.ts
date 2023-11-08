@@ -3,9 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CommonModule } from '../common/common.module';
-import { UserService } from './user.service';
-import { UserResolver } from './user.resolver';
-import { UserRepository } from './user.repository';
+import { UserService, UserResolver, UserSubscriber, UserRepository } from './';
 import { JwtAuthService } from './jwt-auth.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
@@ -22,6 +20,7 @@ import { User } from './entities/user.entity';
   providers: [
     UserService,
     UserResolver,
+    UserSubscriber,
     UserRepository,
     JwtAuthService,
     JwtStrategy,

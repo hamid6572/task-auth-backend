@@ -6,7 +6,7 @@ import { JwtAuthService } from './jwt-auth.service';
 import { LoginInput } from './dto/input/auth-input';
 import { UserRepository } from './user.repository';
 import { UserInput } from './dto/input/user-input';
-import { User } from './entities/user.entity';
+import { User, UserBuilder } from './entities/user.entity';
 import { LoginResponse } from './dto/output/auth-response';
 
 @Injectable()
@@ -66,16 +66,22 @@ export class UserService {
    * @param userData
    * @returns user
    */
-  async createUser(userData: UserInput): Promise<LoginResponse> {
-    if (await this.user(userData.email))
-      throw new Error('User already exists!');
-    const user = await this.userRepository.save({
-      email: userData.email,
-      password: this.commonService.encodePassword(userData.password),
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-    });
-    if (!user) throw new Error("There's some issue creating user!");
+  async createUser({
+    firstName,
+    lastName,
+    email,
+    password,
+  }: UserInput): Promise<LoginResponse> {
+    if (await this.user(email)) throw new Error('User already exists!');
+
+    const user = new UserBuilder()
+      .setFirstName(firstName)
+      .setLastName(lastName)
+      .setEmail(email)
+      .setPassword(password)
+      .build();
+    const newUser = await this.userRepository.save(user);
+    if (!newUser) throw new Error("There's some issue creating user!");
 
     const token = await this.jwtAuthService.getJwtToken({
       id: user.id,
