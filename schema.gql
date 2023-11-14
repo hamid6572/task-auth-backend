@@ -70,6 +70,7 @@ input ReplyInput {
 }
 
 type SuccessResponse {
+  id: Float
   message: String
   success: Boolean
 }
