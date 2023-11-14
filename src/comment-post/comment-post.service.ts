@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { CommentService } from '../comment/comment.service';
 import { PostService } from '../post/post.service';
 import { SuccessResponse } from '../post/dto/success-response';
+import { Post } from '../post/entities/post.entity';
 
 @Injectable()
 export class CommentPostService {
@@ -15,7 +16,7 @@ export class CommentPostService {
 
   async deletePostAndComments(id: number): Promise<SuccessResponse> {
     const queryRunner = this.dataSource.createQueryRunner();
-    let post = {};
+    let post: Post;
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -33,6 +34,6 @@ export class CommentPostService {
       await queryRunner.release();
     }
 
-    return new SuccessResponse('Post deleted successfully');
+    return new SuccessResponse('Post deleted successfully', post.id);
   }
 }

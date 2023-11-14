@@ -8,8 +8,12 @@ export class SuccessResponse {
   @Field({ nullable: true })
   message: string;
 
-  constructor(message: string = 'Post deleted successfully') {
+  @Field({ nullable: true })
+  id: number;
+
+  constructor(message: string = 'Post deleted successfully', id: number) {
     this.success = true;
     this.message = message;
+    this.id = id;
   }
 }

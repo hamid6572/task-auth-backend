@@ -29,7 +29,7 @@ export class CommentService {
    * @param user
    * @returns addcomment
    */
-  async addcomment(
+  async addComment(
     { text, postId }: CommentInput,
     user: User,
   ): Promise<SuccessResponse> {
@@ -45,7 +45,10 @@ export class CommentService {
         'No comments created, Something went Wrong!',
       );
 
-    return new SuccessResponse('Comment Inserted successfully');
+    return new SuccessResponse(
+      'Comment Inserted successfully',
+      comment.generatedMaps[0].id,
+    );
   }
 
   /**
@@ -155,7 +158,7 @@ export class CommentService {
         'Unable to update comment, Something went Wrong!',
       );
 
-    return new SuccessResponse('Comment Update successfully');
+    return new SuccessResponse('Comment Update successfully', comment.id);
   }
 
   /**
@@ -182,7 +185,10 @@ export class CommentService {
     if (deleteResult.affected === 0)
       throw new BadRequestException('No Comment exists!');
 
-    return new SuccessResponse('Comments deleted successfully');
+    return new SuccessResponse(
+      'Comments deleted successfully',
+      deleteResult.raw[0].id,
+    );
   }
 
   /**

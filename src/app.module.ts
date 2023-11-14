@@ -16,6 +16,7 @@ import { CommonModule } from './common/common.module';
 import { CommentPostModule } from './comment-post/comment-post.module';
 import { SearchModule } from './search/search.module';
 import { GlobalErrorInterceptor } from './middleware/error.middleware';
+import { WebsocketGateway } from './websocket/gateway';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { GlobalErrorInterceptor } from './middleware/error.middleware';
       useClass: GlobalErrorInterceptor,
     },
     AppResolver,
+    WebsocketGateway,
   ],
 })
 export class AppModule {}

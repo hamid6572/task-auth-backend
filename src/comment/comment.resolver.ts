@@ -27,7 +27,7 @@ export class CommentResolver {
     @Args('data') data: CommentInput,
     @CurrentUser() user: User,
   ): Promise<SuccessResponse> {
-    return this.commentService.addcomment(data, user);
+    return this.commentService.addComment(data, user);
   }
 
   @UseGuards(JwtAuthGuard)

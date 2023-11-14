@@ -52,7 +52,10 @@ export class PostService {
     if (!postSaved)
       throw new BadRequestException('No posts created, Something went Wrong!');
 
-    return new SuccessResponse('Post Created successfully');
+    return new SuccessResponse(
+      'Post Created successfully',
+      postSaved.generatedMaps[0].id,
+    );
   }
 
   /**
@@ -122,7 +125,7 @@ export class PostService {
         'Unable to update post, Something went wrong.',
       );
 
-    return new SuccessResponse('Post Updated successfully');
+    return new SuccessResponse('Post Updated successfully', updatedPost.id);
   }
 
   /**
@@ -184,7 +187,7 @@ export class PostService {
       } else if (result._index === 'comments' && post) {
         //pushing post of comment with searched text
         const { id, text } = result._source;
-        post.comments.push(Object.assign(new Comment(), { id, text }));
+        post.comments?.push(Object.assign(new Comment(), { id, text }));
 
         postMap.set(postId, post);
       } else if (result._index === 'posts' && !postMap.has(result._source.id)) {
