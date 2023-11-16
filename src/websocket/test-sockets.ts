@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 
 let token =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0LXVzZXItaGVyZUBnLmNvbSIsImlhdCI6MTY5OTk1MzQ0NSwiZXhwIjoxNzAwMDM5ODQ1fQ.onRk4bLFhat7Hz-iHu15GuEJpaSzokAbPJR84OG4vxU';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0LXVzZXItaGVyZUBnLmNvbSIsImlhdCI6MTcwMDA0NDU2NCwiZXhwIjoxNzAwMTMwOTY0fQ.U_f5IrvLcIU0dcv_9gkMuSkXtK447M0AgBbyVf3Pbr8';
 
 const socket = io('http://localhost:3000', {
   extraHeaders: {
@@ -69,7 +69,7 @@ const createCommentApi = async (): Promise<SuccessResponse> => {
   });
 
   return {
-    ...response.data.data.createComment,
-    id: response.data.data.createComment.id,
+    ...response.data.data?.createComment,
+    id: response.data.data?.createComment?.id,
   };
 };
