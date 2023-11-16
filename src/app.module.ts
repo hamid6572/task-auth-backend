@@ -16,7 +16,7 @@ import { CommonModule } from './common/common.module';
 import { CommentPostModule } from './comment-post/comment-post.module';
 import { SearchModule } from './search/search.module';
 import { GlobalErrorInterceptor } from './middleware/error.middleware';
-import { WebsocketGateway } from './websocket/gateway';
+import { WebsocketModule } from './websocket/live-comments.module';
 
 @Module({
   imports: [
@@ -73,6 +73,7 @@ import { WebsocketGateway } from './websocket/gateway';
     CommonModule,
     CommentPostModule,
     SearchModule,
+    WebsocketModule,
   ],
   providers: [
     {
@@ -80,7 +81,6 @@ import { WebsocketGateway } from './websocket/gateway';
       useClass: GlobalErrorInterceptor,
     },
     AppResolver,
-    WebsocketGateway,
   ],
 })
 export class AppModule {}

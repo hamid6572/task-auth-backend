@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var socket_io_client_1 = require("socket.io-client");
 var axios_1 = require("axios");
-var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0LXVzZXItaGVyZUBnLmNvbSIsImlhdCI6MTY5OTk1MzQ0NSwiZXhwIjoxNzAwMDM5ODQ1fQ.onRk4bLFhat7Hz-iHu15GuEJpaSzokAbPJR84OG4vxU';
+var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0LXVzZXItaGVyZUBnLmNvbSIsImlhdCI6MTcwMDA0NDU2NCwiZXhwIjoxNzAwMTMwOTY0fQ.U_f5IrvLcIU0dcv_9gkMuSkXtK447M0AgBbyVf3Pbr8';
 var socket = (0, socket_io_client_1.io)('http://localhost:3000', {
     extraHeaders: {
         Authorization: "".concat(token),
@@ -90,8 +90,9 @@ var SuccessResponse = /** @class */ (function () {
 }());
 var createCommentApi = function () { return __awaiter(void 0, void 0, void 0, function () {
     var graphqlQuery, data, headers, response;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a, _b, _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
             case 0:
                 graphqlQuery = "\n  mutation AddComment($text: String!, $postId: Float!) {\n    createComment(data: { text: $text, postId: $postId }) {\n      message\n      success\n      id\n    }\n  }\n";
                 data = {
@@ -109,8 +110,8 @@ var createCommentApi = function () { return __awaiter(void 0, void 0, void 0, fu
                         headers: headers,
                     })];
             case 1:
-                response = _a.sent();
-                return [2 /*return*/, __assign(__assign({}, response.data.data.createComment), { id: response.data.data.createComment.id })];
+                response = _d.sent();
+                return [2 /*return*/, __assign(__assign({}, (_a = response.data.data) === null || _a === void 0 ? void 0 : _a.createComment), { id: (_c = (_b = response.data.data) === null || _b === void 0 ? void 0 : _b.createComment) === null || _c === void 0 ? void 0 : _c.id })];
         }
     });
 }); };
