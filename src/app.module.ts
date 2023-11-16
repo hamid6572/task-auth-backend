@@ -9,19 +9,23 @@ import { APP_FILTER } from '@nestjs/core';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { AppResolver } from './app.resolver';
-import { PostModule } from './post/post.module';
-import { UserModule } from './user/user.module';
 import { CommentModule } from './comment/comment.module';
 import { CommonModule } from './common/common.module';
 import { CommentPostModule } from './comment-post/comment-post.module';
-import { SearchModule } from './search/search.module';
 import { GlobalErrorInterceptor } from './middleware/error.middleware';
+import { PostModule } from './post/post.module';
+import { RedisIoAdapter } from './websocket/redis-adaptor';
+import { SearchModule } from './search/search.module';
+import { UserModule } from './user/user.module';
 import { WebsocketModule } from './websocket/live-comments.module';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -81,6 +85,7 @@ import { WebsocketModule } from './websocket/live-comments.module';
       useClass: GlobalErrorInterceptor,
     },
     AppResolver,
+    RedisIoAdapter,
   ],
 })
 export class AppModule {}
