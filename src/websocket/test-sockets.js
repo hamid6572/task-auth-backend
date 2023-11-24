@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var socket_io_client_1 = require("socket.io-client");
 var axios_1 = require("axios");
-var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0LXVzZXItaGVyZUBnLmNvbSIsImlhdCI6MTcwMDA0NDU2NCwiZXhwIjoxNzAwMTMwOTY0fQ.U_f5IrvLcIU0dcv_9gkMuSkXtK447M0AgBbyVf3Pbr8';
+var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiZmlyc3ROYW1lIjoiSGFtaWQiLCJpYXQiOjE3MDA2NTA0MzUsImV4cCI6MTcwMDczNjgzNX0.sliu_6OTA_E0raG2wK1eL0RABzHkSzy1lrTQ888-XUE';
 var socket = (0, socket_io_client_1.io)('http://localhost:3000', {
     extraHeaders: {
         Authorization: "".concat(token),
@@ -94,7 +94,7 @@ var createCommentApi = function () { return __awaiter(void 0, void 0, void 0, fu
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
-                graphqlQuery = "\n  mutation AddComment($text: String!, $postId: Float!) {\n    createComment(data: { text: $text, postId: $postId }) {\n      message\n      success\n      id\n    }\n  }\n";
+                graphqlQuery = "\n  mutation AddComment($text: String!, $postId: Float!) {\n    createComment(data: { text: $text, postId: $postId }) {\n  \n      id\n    }\n  }\n";
                 data = {
                     query: graphqlQuery,
                     variables: {

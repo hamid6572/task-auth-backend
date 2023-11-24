@@ -11,7 +11,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class WebsocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -37,7 +37,7 @@ export class WebsocketGateway
       });
 
       if (decodedToken) {
-        const userId = decodedToken.userId;
+        const userId = decodedToken.id;
         client.join(`user-${userId}`);
       }
     } catch (error) {

@@ -14,7 +14,7 @@ import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { Post } from './entities/post.entity';
-import { PostPaginationInput } from './dto/input/post-pagination-input';
+import { PaginationInput } from './dto/input/post-pagination-input';
 import { SuccessResponse } from './dto/success-response';
 
 @Resolver(() => Post)
@@ -61,7 +61,7 @@ export class PostResolver {
   @UseGuards(JwtAuthGuard)
   @Query(() => [Post])
   async paginatedPosts(
-    @Args() paginationInput: PostPaginationInput,
+    @Args() paginationInput: PaginationInput,
   ): Promise<Post[]> {
     return this.postService.paginatedPosts(paginationInput);
   }

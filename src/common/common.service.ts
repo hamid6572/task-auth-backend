@@ -16,9 +16,13 @@ export class CommonService {
     return hashSync(decodeBase64password, SALT);
   }
 
+  // comparePassword(password: string, dbpassword: string) {
+  //   const decodeBase64password = this.decryptBase64(password);
+  //   return compareSync(decodeBase64password, dbpassword);
+  // }
+
   comparePassword(password: string, dbpassword: string) {
-    const decodeBase64password = this.decryptBase64(password);
-    return compareSync(decodeBase64password, dbpassword);
+    return compareSync(password, dbpassword);
   }
 
   async insertEntity<T extends Record<string, any>>(

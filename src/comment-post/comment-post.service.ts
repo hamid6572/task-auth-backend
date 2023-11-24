@@ -28,12 +28,14 @@ export class CommentPostService {
       post = await this.postService.deletePost(id, queryRunner.manager);
 
       await queryRunner.commitTransaction();
+      return new SuccessResponse('Post deleted successfully', post?.id);
     } catch (err) {
+      console.log(err);
+
       await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       await queryRunner.release();
     }
-
-    return new SuccessResponse('Post deleted successfully', post.id);
   }
 }

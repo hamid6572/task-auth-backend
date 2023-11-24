@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 
 let token =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0LXVzZXItaGVyZUBnLmNvbSIsImlhdCI6MTcwMDA0NDU2NCwiZXhwIjoxNzAwMTMwOTY0fQ.U_f5IrvLcIU0dcv_9gkMuSkXtK447M0AgBbyVf3Pbr8';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwiZmlyc3ROYW1lIjoiSGFtaWQiLCJpYXQiOjE3MDA2NTA0MzUsImV4cCI6MTcwMDczNjgzNX0.sliu_6OTA_E0raG2wK1eL0RABzHkSzy1lrTQ888-XUE';
 
 const socket = io('http://localhost:3000', {
   extraHeaders: {
@@ -45,8 +45,7 @@ const createCommentApi = async (): Promise<SuccessResponse> => {
   const graphqlQuery = `
   mutation AddComment($text: String!, $postId: Float!) {
     createComment(data: { text: $text, postId: $postId }) {
-      message
-      success
+  
       id
     }
   }

@@ -14,6 +14,7 @@ import { Comment } from './entities/comment.entity';
 import { Post } from '../post/entities/post.entity';
 import { SuccessResponse } from '../post/dto/success-response';
 import { CommonService } from '../common/common.service';
+import { PaginationInput } from '../post/dto/input/post-pagination-input';
 
 @Injectable()
 export class CommentService {
@@ -32,23 +33,23 @@ export class CommentService {
   async addComment(
     { text, postId }: CommentInput,
     user: User,
-  ): Promise<SuccessResponse> {
+  ): Promise<Comment> {
     const post: Post | null = await this.postService.post(postId);
     if (!post) throw new BadRequestException('No post exists!');
 
-    const comment = await this.commonService.insertEntity(
-      Object.assign(new Comment(), { text, user, post }),
-      Comment,
-    );
+    const comment = await this.commentRepository.save({ text, post, user });
     if (!comment)
       throw new BadRequestException(
         'No comments created, Something went Wrong!',
       );
+    const commentData = await this.comment(comment.id);
 
-    return new SuccessResponse(
-      'Comment Inserted successfully',
-      comment.generatedMaps[0].id,
-    );
+    // const comment = await this.commonService.insertEntity(
+    //   Object.assign(new Comment(), { text, user, post }),
+    //   Comment,
+    // );
+
+    return commentData;
   }
 
   /**
@@ -69,17 +70,23 @@ export class CommentService {
    * @param postId
    * @returns comments by post
    */
-  async commentsByPost(postId: number): Promise<Comment[]> {
+  async commentsByPost(
+    postId: number,
+    { itemsPerPage, page }: PaginationInput,
+  ): Promise<Comment[]> {
     const post: Post | null = await this.postService.post(postId);
     if (!post) throw new BadRequestException('No post exists!');
 
-    const comments = await this.commentRepository.find({
-      where: {
-        post: {
-          id: postId,
-        },
-      },
-    });
+    const comments = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.post', 'post')
+      .where('post.id = :postId', { postId: postId })
+      .andWhere('comment.parent IS NULL')
+      .skip(page)
+      .take(itemsPerPage)
+      .orderBy('comment.createdAt')
+      .getMany();
+
     if (!comments) return [];
 
     for (const comment of comments)
@@ -105,6 +112,37 @@ export class CommentService {
   }
 
   /**
+   * Replies of comment
+   * @param postId
+   * @param { itemsPerPage, page }
+   * @returns of comment
+   */
+  async repliesOfComment(
+    commentId: number,
+    { itemsPerPage, page }: PaginationInput,
+  ): Promise<Comment[]> {
+    const comment = await this.comment(commentId);
+    if (!comment) throw new BadRequestException('No comment exists!');
+
+    const comments = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.post', 'post')
+      .leftJoinAndSelect('comment.parent', 'parent')
+      .where('parent.id = :commentId', { commentId })
+      .skip(page)
+      .take(itemsPerPage)
+      .orderBy('comment.createdAt')
+      .getMany();
+
+    if (!comments) return [];
+
+    for (const comment of comments)
+      comment.replies = await this.buildNestedReplies(comment);
+
+    return comments;
+  }
+
+  /**
    * Builds nested replies
    * @param comment
    * @returns nested replies
@@ -115,6 +153,9 @@ export class CommentService {
         parent: {
           id: comment.id,
         },
+      },
+      order: {
+        createdAt: 'ASC',
       },
     });
 
@@ -182,12 +223,12 @@ export class CommentService {
       .where('postId = :postId', { postId: id })
       .execute();
 
-    if (deleteResult.affected === 0)
-      throw new BadRequestException('No Comment exists!');
+    // if (deleteResult.affected === 0)
+    //   throw new BadRequestException('No Comment exists!');
 
     return new SuccessResponse(
       'Comments deleted successfully',
-      deleteResult.raw[0].id,
+      deleteResult.raw[0]?.id,
     );
   }
 
