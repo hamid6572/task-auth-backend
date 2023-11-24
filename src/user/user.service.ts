@@ -85,7 +85,7 @@ export class UserService {
 
     const token = await this.jwtAuthService.getJwtToken({
       id: user.id,
-      email: user.email,
+      firstName: user.firstName,
     });
     return { token: `Bearer ${token}`, user };
   }
@@ -101,7 +101,7 @@ export class UserService {
 
     const token = await this.jwtAuthService.getJwtToken({
       id: user.id,
-      email: user.email,
+      firstName: user.firstName,
     });
 
     return { token: `Bearer ${token}`, user };

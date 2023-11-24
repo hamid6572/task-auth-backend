@@ -28,7 +28,7 @@ type LoginResponse {
 
 type Mutation {
   addReplyToComment(data: ReplyInput!): Comment!
-  createComment(data: CommentInput!): SuccessResponse!
+  createComment(data: CommentInput!): Comment!
   createPost(data: postInput!): SuccessResponse!
   deleteCommentByPost(postId: Float!): SuccessResponse!
   deletePost(id: Float!): SuccessResponse!
@@ -53,8 +53,10 @@ enum PostStatus {
 }
 
 type Query {
-  getComment(id: Float!): Comment!
+  Comment(postId: Float!): Comment!
+  getComment(itemsPerPage: Int! = 10, page: Int! = 1, postId: Float!): [Comment!]!
   getPost(id: Float!): Post!
+  getRepliesOfComment(commentId: Float!, itemsPerPage: Int! = 10, page: Int! = 1): [Comment!]!
   hello: String!
   listComments: [Comment!]!
   listPosts: [Post!]!

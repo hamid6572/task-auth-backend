@@ -16,24 +16,43 @@ import { Comment } from './entities/comment.entity';
 import { ReplyInput } from './dto/input/reply-input';
 import { Post } from '../post/entities/post.entity';
 import { SuccessResponse } from '../post/dto/success-response';
+import { PaginationInput } from '../post/dto/input/post-pagination-input';
 
 @Resolver(() => Comment)
 export class CommentResolver {
   constructor(private readonly commentService: CommentService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => SuccessResponse)
+  @Mutation(() => Comment)
   async createComment(
     @Args('data') data: CommentInput,
     @CurrentUser() user: User,
-  ): Promise<SuccessResponse> {
+  ): Promise<Comment> {
     return this.commentService.addComment(data, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Comment)
-  async getComment(@Args('id') id: number): Promise<Comment> {
-    return this.commentService.comment(id);
+  async Comment(@Args('postId') commentId: number): Promise<Comment> {
+    return this.commentService.comment(commentId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Comment])
+  async getComment(
+    @Args('postId') postId: number,
+    @Args() paginationInput: PaginationInput,
+  ): Promise<Comment[]> {
+    return this.commentService.commentsByPost(postId, paginationInput);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Comment])
+  async getRepliesOfComment(
+    @Args('commentId') commentId: number,
+    @Args() paginationInput: PaginationInput,
+  ): Promise<Comment[]> {
+    return this.commentService.repliesOfComment(commentId, paginationInput);
   }
 
   @UseGuards(JwtAuthGuard)

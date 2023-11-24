@@ -7,7 +7,7 @@ import { EntityManager, Like } from 'typeorm';
 
 import { postInput } from './dto/input/post-input';
 import { PostRepository } from './post.repository';
-import { PostPaginationInput } from './dto/input/post-pagination-input';
+import { PaginationInput } from './dto/input/post-pagination-input';
 import { User } from '../user/entities/user.entity';
 import { SearchInput } from './dto/input/search-input';
 import { UserRepository } from '../user/user.repository';
@@ -182,9 +182,9 @@ export class PostService {
 
       if (result._index === 'comments' && postMap.has(postId)) {
         //comment already there with post
-        if (!postMap.get(postId).comments) postMap.get(postId).comments = [];
         postMap.get(postId).comments.push(result._source);
       } else if (result._index === 'comments' && post) {
+        post.comments = [];
         //pushing post of comment with searched text
         const { id, text } = result._source;
         post.comments?.push(Object.assign(new Comment(), { id, text }));
@@ -254,15 +254,17 @@ export class PostService {
    * @param paginationInput
    * @returns paginated posts
    */
-  async paginatedPosts(paginationInput: PostPaginationInput): Promise<Post[]> {
+  async paginatedPosts(paginationInput: PaginationInput): Promise<Post[]> {
     const { page, itemsPerPage } = paginationInput;
 
     //keyset
     return this.postRepository
       .createQueryBuilder('post')
-      .where('id > :value', { value: page })
+      .leftJoinAndSelect('post.comments', 'comments')
+      .leftJoinAndSelect('post.user', 'user')
+      .skip(page)
       .take(itemsPerPage)
-      .orderBy('id')
+      .orderBy('post.createdAt')
       .getMany();
 
     //offset
