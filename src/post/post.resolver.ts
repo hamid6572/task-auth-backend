@@ -5,6 +5,7 @@ import {
   Query,
   ResolveField,
   Parent,
+  Int,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
@@ -32,7 +33,7 @@ export class PostResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Post)
-  async getPost(@Args('id') id: number): Promise<Post> {
+  async getPost(@Args('id', { type: () => Int }) id: number): Promise<Post> {
     return this.postService.post(id);
   }
 
@@ -45,7 +46,7 @@ export class PostResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
   async updatePost(
-    @Args('id') id: number,
+    @Args('id', { type: () => Int }) id: number,
     @Args('data') data: postInput,
     @CurrentUser() user: User,
   ): Promise<SuccessResponse> {
@@ -58,11 +59,13 @@ export class PostResolver {
     return this.postService.searchPosts(input);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Query(() => [Post])
   async paginatedPosts(
     @Args() paginationInput: PaginationInput,
   ): Promise<Post[]> {
+    console.log('hi there');
+
     return this.postService.paginatedPosts(paginationInput);
   }
 

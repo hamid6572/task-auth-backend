@@ -12,7 +12,7 @@ type Comment {
 }
 
 input CommentInput {
-  postId: Float
+  postId: Int
   text: String!
 }
 
@@ -30,12 +30,12 @@ type Mutation {
   addReplyToComment(data: ReplyInput!): Comment!
   createComment(data: CommentInput!): Comment!
   createPost(data: postInput!): SuccessResponse!
-  deleteCommentByPost(postId: Float!): SuccessResponse!
-  deletePost(id: Float!): SuccessResponse!
+  deleteCommentByPost(postId: Int!): SuccessResponse!
+  deletePost(id: Int!): SuccessResponse!
   login(loginData: LoginInput!): LoginResponse!
   register(createUser: UserInput!): LoginResponse!
-  updateComment(data: CommentInput!, id: Float!): SuccessResponse!
-  updatePost(data: postInput!, id: Float!): SuccessResponse!
+  updateComment(data: CommentInput!, id: Int!): SuccessResponse!
+  updatePost(data: postInput!, id: Int!): SuccessResponse!
 }
 
 type Post {
@@ -53,10 +53,10 @@ enum PostStatus {
 }
 
 type Query {
-  Comment(postId: Float!): Comment!
-  getComment(itemsPerPage: Int! = 10, page: Int! = 1, postId: Float!): [Comment!]!
-  getPost(id: Float!): Post!
-  getRepliesOfComment(commentId: Float!, itemsPerPage: Int! = 10, page: Int! = 1): [Comment!]!
+  Comment(postId: Int!): Comment!
+  getComment(itemsPerPage: Int! = 10, page: Int! = 1, postId: Int!): [Comment!]!
+  getPost(id: Int!): Post!
+  getRepliesOfComment(commentId: Int!, itemsPerPage: Int! = 10, page: Int! = 1): [Comment!]!
   hello: String!
   listComments: [Comment!]!
   listPosts: [Post!]!
@@ -66,8 +66,8 @@ type Query {
 }
 
 input ReplyInput {
-  commentId: Float
-  postId: Float
+  commentId: Int
+  postId: Int
   text: String!
 }
 

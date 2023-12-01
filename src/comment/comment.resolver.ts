@@ -5,6 +5,7 @@ import {
   Query,
   ResolveField,
   Parent,
+  Int,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { CommentInput } from './dto/input/comment-input';
@@ -33,14 +34,16 @@ export class CommentResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Comment)
-  async Comment(@Args('postId') commentId: number): Promise<Comment> {
+  async Comment(
+    @Args('postId', { type: () => Int }) commentId: number,
+  ): Promise<Comment> {
     return this.commentService.comment(commentId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Comment])
   async getComment(
-    @Args('postId') postId: number,
+    @Args('postId', { type: () => Int }) postId: number,
     @Args() paginationInput: PaginationInput,
   ): Promise<Comment[]> {
     return this.commentService.commentsByPost(postId, paginationInput);
@@ -49,7 +52,7 @@ export class CommentResolver {
   @UseGuards(JwtAuthGuard)
   @Query(() => [Comment])
   async getRepliesOfComment(
-    @Args('commentId') commentId: number,
+    @Args('commentId', { type: () => Int }) commentId: number,
     @Args() paginationInput: PaginationInput,
   ): Promise<Comment[]> {
     return this.commentService.repliesOfComment(commentId, paginationInput);
@@ -64,7 +67,7 @@ export class CommentResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
   async updateComment(
-    @Args('id') id: number,
+    @Args('id', { type: () => Int }) id: number,
     @Args('data') data: CommentInput,
     @CurrentUser() user: User,
   ): Promise<SuccessResponse> {
@@ -74,7 +77,7 @@ export class CommentResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
   async deleteCommentByPost(
-    @Args('postId') postId: number,
+    @Args('postId', { type: () => Int }) postId: number,
   ): Promise<SuccessResponse> {
     return this.commentService.deleteCommentAndReplies(postId);
   }
