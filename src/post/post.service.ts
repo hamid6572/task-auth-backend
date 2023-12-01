@@ -113,6 +113,7 @@ export class PostService {
       .update(post)
       .setTitle(title)
       .setContent(content)
+      .setUser(user)
       .build();
 
     const resultantPost = await this.commonService.updateEntity(
@@ -167,6 +168,7 @@ export class PostService {
     );
     const posts = [];
     const postMap = new Map();
+    console.log('results', results);
 
     for (const result of results.hits.hits) {
       const postId = result._source.postId;
@@ -181,10 +183,12 @@ export class PostService {
       });
 
       if (result._index === 'comments' && postMap.has(postId)) {
+        if (!postMap.get(postId).comments) postMap.get(postId).comments = [];
+
         //comment already there with post
-        postMap.get(postId).comments.push(result._source);
+        postMap.get(postId).comments?.push(result._source);
       } else if (result._index === 'comments' && post) {
-        post.comments = [];
+        if (!post.comments) post.comments = [];
         //pushing post of comment with searched text
         const { id, text } = result._source;
         post.comments?.push(Object.assign(new Comment(), { id, text }));

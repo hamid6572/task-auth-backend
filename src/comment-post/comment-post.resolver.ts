@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
 import { CommentPostService } from './comment-post.service';
@@ -13,7 +13,10 @@ export class CommentPostResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => SuccessResponse)
-  async deletePost(@Args('id') id: number, @CurrentUser() user: User) {
+  async deletePost(
+    @Args('id', { type: () => Int }) id: number,
+    @CurrentUser() user: User,
+  ) {
     return await this.commentPostService.deletePostAndComments(id);
   }
 }
