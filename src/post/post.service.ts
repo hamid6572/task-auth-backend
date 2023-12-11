@@ -27,10 +27,10 @@ export class PostService {
   ) {}
 
   /**
-   * Add posts post service
-   * @param data
-   * @param user
-   * @returns added post
+   * Params post service
+   * @param { title, content } 
+   * @param { id } 
+   * @returns post 
    */
   async addPost(
     { title, content }: postInput,
@@ -59,9 +59,9 @@ export class PostService {
   }
 
   /**
-   * Get a post by its ID
-   * @param id
-   * @returns a post
+   * Params post service
+   * @param id 
+   * @returns post 
    */
   async post(id: number): Promise<Post> {
     const post = await this.postRepository.findOne({
@@ -76,8 +76,8 @@ export class PostService {
   }
 
   /**
-   * Get all posts
-   * @returns posts
+   * Returns post service
+   * @returns posts 
    */
   async posts(): Promise<Post[]> {
     const posts = await this.postRepository.find({
@@ -92,11 +92,11 @@ export class PostService {
   }
 
   /**
-   * Update a post
-   * @param id
-   * @param data
-   * @param user
-   * @returns updated post
+   * Params post service
+   * @param id 
+   * @param { title, content } 
+   * @param user 
+   * @returns post 
    */
   async updatePost(
     id: number,
@@ -130,10 +130,10 @@ export class PostService {
   }
 
   /**
-   * Delete a post
-   * @param id
-   * @param manager
-   * @returns deleted post
+   * Params post service
+   * @param id 
+   * @param manager 
+   * @returns post 
    */
   async deletePost(id: number, manager: EntityManager): Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
@@ -147,9 +147,9 @@ export class PostService {
   }
 
   /**
-   * Search for posts
-   * @param input
-   * @returns matching posts
+   * Params post service
+   * @param input 
+   * @returns posts 
    */
   async searchPosts(input: string): Promise<Post[]> {
     let fieldsToSearch: string[] = [
@@ -205,9 +205,14 @@ export class PostService {
   }
 
   /**
-   * Search for posts by filters
-   * @param input
-   * @returns matching posts
+   * Params post service
+   * @param {
+   *     firstName,
+   *     lastName,
+   *     email,
+   *     title,
+   *   } 
+   * @returns posts by filters 
    */
   async searchPostsByFilters({
     firstName,
@@ -236,9 +241,9 @@ export class PostService {
   }
 
   /**
-   * Search for posts by query
-   * @param input
-   * @returns matching posts
+   * Params post service
+   * @param input 
+   * @returns posts by query 
    */
   async searchPostsByQuery(input: string): Promise<Post[]> {
     const posts = await this.postRepository
@@ -254,9 +259,9 @@ export class PostService {
   }
 
   /**
-   * Get paginated posts
-   * @param paginationInput
-   * @returns paginated posts
+   * Params post service
+   * @param paginationInput 
+   * @returns posts 
    */
   async paginatedPosts(paginationInput: PaginationInput): Promise<Post[]> {
     const { page, itemsPerPage } = paginationInput;
@@ -281,9 +286,9 @@ export class PostService {
   }
 
   /**
-   * Get user by post id
-   * @param id
-   * @returns user by post id
+   * Params post service
+   * @param id 
+   * @returns user by post id 
    */
   async getUserByPostId(id: number): Promise<User> {
     const post = await this.postRepository.findOne({
