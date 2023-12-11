@@ -43,7 +43,7 @@ class SuccessResponse {
 
 const createCommentApi = async (): Promise<SuccessResponse> => {
   const graphqlQuery = `
-  mutation AddComment($text: String!, $postId: Float!) {
+  mutation AddComment($text: String!, $postId: Int!) {
     createComment(data: { text: $text, postId: $postId }) {
   
       id

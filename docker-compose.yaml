@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - $REDIS_LOCAL_PORT:$REDIS_DOCKER_PORT
+
+  elasticsearch:
+    image: elasticsearch:7.17.15
+    ports:
+      - $ELASTIC_SEARCH_HTTP_PORT:$ELASTIC_SEARCH_HTTP_PORT
+      - $ELASTIC_SEARCH_CLUSTER_PORT:$ELASTIC_SEARCH_CLUSTER_PORT
+    environment:
+      - discovery.type=single-node
+    cpus: 0.75
+    mem_limit:  500m
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.15
+    ports:
+      - $KIBANA_LOCAL_PORT:$KIBANA_DOCKER_PORT
+    environment:
+      ELASTICSEARCH_URL: $ELASTIC_SEARCH_HOST
+    cpus: 0.75
+    mem_limit:  500m
+    depends_on:
+      - elasticsearch
+
+  postgresdb:
+    image: postgres
+    env_file: ./.env
+    environment:
+      - POSTGRES_USER=$DATABASE_USERNAME
+      - POSTGRES_PASSWORD=$DATABASE_PASSWORD
+      - POSTGRES_DB=$DATABASE_NAME
+    ports:
+      - $DATABASE_LOCAL_PORT:$DATABASE_DOCKER_PORT
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    working_dir: /app
+    entrypoint: ["/bin/sh", "./entrypoint.sh"]
+    depends_on:
+    - redis
+    - elasticsearch
+    - postgresdb
+    restart: unless-stopped
+    build: ./
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_LOCAL_PORT
+    volumes:
+      - .:/app
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_USER=$DATABASE_USERNAME
+      - DB_PASSWORD=$DATABASE_PASSWORD
+      - DB_NAME=$DATABASE_NAME
+      - DB_PORT=$DATABASE_LOCAL_PORT
+
+volumes:
+  pgdata:
+  elasticsearch_data:
+    driver: local

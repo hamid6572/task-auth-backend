@@ -64,7 +64,7 @@ export class PostResolver {
   async paginatedPosts(
     @Args() paginationInput: PaginationInput,
   ): Promise<Post[]> {
-    console.log('hi there');
+    console.log('hi there!');
 
     return this.postService.paginatedPosts(paginationInput);
   }

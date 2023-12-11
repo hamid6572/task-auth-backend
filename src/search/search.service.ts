@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Client } from '@elastic/elasticsearch';
 import {
   DeleteByQueryResponse,
@@ -20,8 +21,10 @@ export class SearchService {
   indexComments = 'comments';
   private readonly elasticsearchClient: Client;
 
-  constructor() {
-    this.elasticsearchClient = new Client({ node: 'http://localhost:9200' });
+  constructor(private readonly configService: ConfigService) {
+    this.elasticsearchClient = new Client({
+      node: this.configService.get<string>('ELASTIC_SEARCH_HOST'),
+    });
   }
 
   /**
