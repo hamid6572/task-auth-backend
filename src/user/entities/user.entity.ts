@@ -7,11 +7,11 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
-import { hashSync } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
-import { Post } from '../../post/entities/post.entity';
-import { Comment } from '../../comment/entities/comment.entity';
-import { BaseEntity } from '../../common/base.entity';
+import { Post } from '../../post/entities/post.entity.js';
+import { Comment } from '../../comment/entities/comment.entity.js';
+import { BaseEntity } from '../../common/base.entity.js';
 
 @Entity()
 @ObjectType()
@@ -47,7 +47,7 @@ export class User extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    this.password = await hashSync(this.password);
+    this.password = bcrypt.hashSync(this.password);
   }
 }
 

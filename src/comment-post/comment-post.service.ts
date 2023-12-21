@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
-import { CommentService } from '../comment/comment.service';
-import { PostService } from '../post/post.service';
-import { SuccessResponse } from '../post/dto/success-response';
-import { Post } from '../post/entities/post.entity';
+import { CommentService } from '../comment/comment.service.js';
+import { PostService } from '../post/post.service.js';
+import { SuccessResponse } from '../post/dto/success-response.js';
+import { Post } from '../post/entities/post.entity.js';
 
 @Injectable()
 export class CommentPostService {

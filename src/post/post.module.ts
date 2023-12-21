@@ -1,10 +1,13 @@
 import { Module, Post } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UserModule } from '../user/user.module';
-import { SearchModule } from '../search/search.module';
-import { CommonModule } from '../common/common.module';
-import { PostRepository, PostResolver, PostService, PostSubscriber } from './';
+import { UserModule } from '../user/user.module.js';
+import { SearchModule } from '../search/search.module.js';
+import { CommonModule } from '../common/common.module.js';
+import { PostService } from './post.service.js';
+import { PostResolver } from './post.resolver.js';
+import { PostRepository } from './post.repository.js';
+import { PostSubscriber } from './post.subscriber.js';
 
 @Module({
   imports: [

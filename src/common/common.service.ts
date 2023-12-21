@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { hashSync, compareSync, genSaltSync } from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { DataSource, DeleteResult, InsertResult, UpdateResult } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
@@ -11,9 +11,9 @@ export class CommonService {
   }
 
   encodePassword(password: string) {
-    const SALT = genSaltSync();
+    const SALT = bcryptjs.genSaltSync();
     const decodeBase64password = this.decryptBase64(password);
-    return hashSync(decodeBase64password, SALT);
+    return bcryptjs.hashSync(decodeBase64password, SALT);
   }
 
   // comparePassword(password: string, dbpassword: string) {
@@ -22,7 +22,7 @@ export class CommonService {
   // }
 
   comparePassword(password: string, dbpassword: string) {
-    return compareSync(password, dbpassword);
+    return bcryptjs.compareSync(password, dbpassword);
   }
 
   async insertEntity<T extends Record<string, any>>(

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { SearchService } from './search.service';
-import { SearchResolver } from './search.resolver';
+import { SearchService } from './search.service.js';
+import { SearchResolver } from './search.resolver.js';
 
 @Module({
   imports: [],

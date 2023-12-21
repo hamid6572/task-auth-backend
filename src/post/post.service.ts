@@ -5,17 +5,17 @@ import {
 } from '@nestjs/common';
 import { EntityManager, Like } from 'typeorm';
 
-import { postInput } from './dto/input/post-input';
-import { PostRepository } from './post.repository';
-import { PaginationInput } from './dto/input/post-pagination-input';
-import { User } from '../user/entities/user.entity';
-import { SearchInput } from './dto/input/search-input';
-import { UserRepository } from '../user/user.repository';
-import { Post, PostBuilder } from './entities/post.entity';
-import { SearchService } from '../search/search.service';
-import { Comment } from '../comment/entities/comment.entity';
-import { CommonService } from '../common/common.service';
-import { SuccessResponse } from './dto/success-response';
+import { postInput } from './dto/input/post-input.js';
+import { PostRepository } from './post.repository.js';
+import { PaginationInput } from './dto/input/post-pagination-input.js';
+import { User } from '../user/entities/user.entity.js';
+import { SearchInput } from './dto/input/search-input.js';
+import { UserRepository } from '../user/user.repository.js';
+import { Post, PostBuilder } from './entities/post.entity.js';
+import { SearchService } from '../search/search.service.js';
+import { Comment } from '../comment/entities/comment.entity.js';
+import { CommonService } from '../common/common.service.js';
+import { SuccessResponse } from './dto/success-response.js';
 
 @Injectable()
 export class PostService {
@@ -28,9 +28,9 @@ export class PostService {
 
   /**
    * Params post service
-   * @param { title, content } 
-   * @param { id } 
-   * @returns post 
+   * @param { title, content }
+   * @param { id }
+   * @returns post
    */
   async addPost(
     { title, content }: postInput,
@@ -60,8 +60,8 @@ export class PostService {
 
   /**
    * Params post service
-   * @param id 
-   * @returns post 
+   * @param id
+   * @returns post
    */
   async post(id: number): Promise<Post> {
     const post = await this.postRepository.findOne({
@@ -77,7 +77,7 @@ export class PostService {
 
   /**
    * Returns post service
-   * @returns posts 
+   * @returns posts
    */
   async posts(): Promise<Post[]> {
     const posts = await this.postRepository.find({
@@ -93,10 +93,10 @@ export class PostService {
 
   /**
    * Params post service
-   * @param id 
-   * @param { title, content } 
-   * @param user 
-   * @returns post 
+   * @param id
+   * @param { title, content }
+   * @param user
+   * @returns post
    */
   async updatePost(
     id: number,
@@ -131,9 +131,9 @@ export class PostService {
 
   /**
    * Params post service
-   * @param id 
-   * @param manager 
-   * @returns post 
+   * @param id
+   * @param manager
+   * @returns post
    */
   async deletePost(id: number, manager: EntityManager): Promise<Post> {
     const post = await this.postRepository.findOne({ where: { id } });
@@ -148,8 +148,8 @@ export class PostService {
 
   /**
    * Params post service
-   * @param input 
-   * @returns posts 
+   * @param input
+   * @returns posts
    */
   async searchPosts(input: string): Promise<Post[]> {
     let fieldsToSearch: string[] = [
@@ -211,8 +211,8 @@ export class PostService {
    *     lastName,
    *     email,
    *     title,
-   *   } 
-   * @returns posts by filters 
+   *   }
+   * @returns posts by filters
    */
   async searchPostsByFilters({
     firstName,
@@ -242,8 +242,8 @@ export class PostService {
 
   /**
    * Params post service
-   * @param input 
-   * @returns posts by query 
+   * @param input
+   * @returns posts by query
    */
   async searchPostsByQuery(input: string): Promise<Post[]> {
     const posts = await this.postRepository
@@ -260,8 +260,8 @@ export class PostService {
 
   /**
    * Params post service
-   * @param paginationInput 
-   * @returns posts 
+   * @param paginationInput
+   * @returns posts
    */
   async paginatedPosts(paginationInput: PaginationInput): Promise<Post[]> {
     const { page, itemsPerPage } = paginationInput;
@@ -287,8 +287,8 @@ export class PostService {
 
   /**
    * Params post service
-   * @param id 
-   * @returns user by post id 
+   * @param id
+   * @returns user by post id
    */
   async getUserByPostId(id: number): Promise<User> {
     const post = await this.postRepository.findOne({

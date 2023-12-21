@@ -5,11 +5,12 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  Relation,
 } from 'typeorm';
 
-import { User } from '../../user/entities/user.entity';
-import { Comment } from '../../comment/entities/comment.entity';
-import { BaseEntity } from '../../common/base.entity';
+import { User } from '../../user/entities/user.entity.js';
+import { Comment } from '../../comment/entities/comment.entity.js';
+import { BaseEntity } from '../../common/base.entity.js';
 
 export enum PostStatus {
   PUBLISHED = 'PUBLISHED',
@@ -45,11 +46,11 @@ export class Post extends BaseEntity {
 
   @ManyToOne(() => User, user => user.posts)
   @Field(() => User, { nullable: true })
-  user: User;
+  user: Relation<User>;
 
   @OneToMany(() => Comment, comment => comment.post)
   @Field(() => [Comment], { nullable: true })
-  comments: Comment[];
+  comments: Relation<Comment>[];
 }
 
 export class PostBuilder {

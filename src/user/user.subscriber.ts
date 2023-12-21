@@ -6,8 +6,8 @@ import {
   InsertEvent,
 } from 'typeorm';
 
-import { User } from './entities/user.entity';
-import { CommonService } from '../common/common.service';
+import { User } from './entities/user.entity.js';
+import { CommonService } from '../common/common.service.js';
 
 @EventSubscriber()
 @Injectable()

@@ -1,6 +1,6 @@
-import { PostService } from './post.service';
-import { PostResolver } from './post.resolver';
-import { PostRepository } from './post.repository';
-import { PostSubscriber } from './post.subscriber';
+import { PostService } from './post.service.js';
+import { PostResolver } from './post.resolver.js';
+import { PostRepository } from './post.repository.js';
+import { PostSubscriber } from './post.subscriber.js';
 
 export { PostRepository, PostResolver, PostService, PostSubscriber };

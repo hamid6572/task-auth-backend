@@ -8,16 +8,16 @@ import {
   Int,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { CommentInput } from './dto/input/comment-input';
-import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { CommentService } from './comment.service';
-import { User } from '../user/entities/user.entity';
-import { Comment } from './entities/comment.entity';
-import { ReplyInput } from './dto/input/reply-input';
-import { Post } from '../post/entities/post.entity';
-import { SuccessResponse } from '../post/dto/success-response';
-import { PaginationInput } from '../post/dto/input/post-pagination-input';
+import { CommentInput } from './dto/input/comment-input.js';
+import { JwtAuthGuard } from '../user/guards/jwt-auth.guard.js';
+import { CurrentUser } from '../decorators/current-user.decorator.js';
+import { CommentService } from './comment.service.js';
+import { User } from '../user/entities/user.entity.js';
+import { Comment } from './entities/comment.entity.js';
+import { ReplyInput } from './dto/input/reply-input.js';
+import { Post } from '../post/entities/post.entity.js';
+import { SuccessResponse } from '../post/dto/success-response.js';
+import { PaginationInput } from '../post/dto/input/post-pagination-input.js';
 
 @Resolver(() => Comment)
 export class CommentResolver {
