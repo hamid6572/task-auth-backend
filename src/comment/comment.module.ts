@@ -1,16 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { PostModule } from '../post/post.module';
-import { Comment } from './entities/comment.entity';
-import { SearchModule } from '../search/search.module';
-import { CommonModule } from '../common/common.module';
-import {
-  CommentRepository,
-  CommentResolver,
-  CommentService,
-  CommentSubscriber,
-} from './';
+import { PostModule } from '../post/post.module.js';
+import { Comment } from './entities/comment.entity.js';
+import { SearchModule } from '../search/search.module.js';
+import { CommonModule } from '../common/common.module.js';
+import { CommentService } from './comment.service.js';
+import { CommentResolver } from './comment.resolver.js';
+import { CommentRepository } from './comment.repository.js';
+import { CommentSubscriber } from './comment.subscriber.js';
 
 @Module({
   imports: [

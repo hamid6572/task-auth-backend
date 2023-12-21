@@ -9,14 +9,14 @@ import {
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
-import { PostService } from './post.service';
-import { postInput } from './dto/input/post-input';
-import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { User } from '../user/entities/user.entity';
-import { Post } from './entities/post.entity';
-import { PaginationInput } from './dto/input/post-pagination-input';
-import { SuccessResponse } from './dto/success-response';
+import { PostService } from './post.service.js';
+import { postInput } from './dto/input/post-input.js';
+import { JwtAuthGuard } from '../user/guards/jwt-auth.guard.js';
+import { CurrentUser } from '../decorators/current-user.decorator.js';
+import { User } from '../user/entities/user.entity.js';
+import { Post } from './entities/post.entity.js';
+import { PaginationInput } from './dto/input/post-pagination-input.js';
+import { SuccessResponse } from './dto/success-response.js';
 
 @Resolver(() => Post)
 export class PostResolver {

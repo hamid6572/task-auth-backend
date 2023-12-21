@@ -1,6 +1,6 @@
 import { Repository, DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { Comment } from './entities/comment.entity';
+import { Comment } from './entities/comment.entity.js';
 
 @Injectable()
 export class CommentRepository extends Repository<Comment> {

@@ -9,11 +9,11 @@ import {
   AggregationsAggregate,
 } from '@elastic/elasticsearch/lib/api/types';
 
-import { PostSearchBody } from './dto/post-search-body';
-import { Post } from '../post/entities/post.entity';
-import { CommentSearchBody } from './dto/comment-search-body';
-import { Comment } from '../comment/entities/comment.entity';
-import { ElasticsearchSource } from './dto/search-response';
+import { PostSearchBody } from './dto/post-search-body.js';
+import { Post } from '../post/entities/post.entity.js';
+import { CommentSearchBody } from './dto/comment-search-body.js';
+import { Comment } from '../comment/entities/comment.entity.js';
+import { ElasticsearchSource } from './dto/search-response.js';
 
 @Injectable()
 export class SearchService {

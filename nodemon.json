@@ -1,0 +1,6 @@
+{
+  "watch": ["dist/src"],
+  "ext": ".js,.ts",
+  "ignore": [],
+  "exec": "cd dist && node"
+}

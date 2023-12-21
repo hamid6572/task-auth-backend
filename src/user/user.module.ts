@@ -3,12 +3,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 
-import { CommonModule } from '../common/common.module';
-import { UserService, UserResolver, UserSubscriber, UserRepository } from './';
-import { JwtAuthService } from './jwt-auth.service';
-import { JwtStrategy } from './strategy/jwt.strategy';
-import { LocalStrategy } from './strategy/local.strategy';
-import { User } from './entities/user.entity';
+import { CommonModule } from '../common/common.module.js';
+import { JwtAuthService } from './jwt-auth.service.js';
+import { JwtStrategy } from './strategy/jwt.strategy.js';
+import { LocalStrategy } from './strategy/local.strategy.js';
+import { User } from './entities/user.entity.js';
+import { UserService } from './user.service.js';
+import { UserResolver } from './user.resolver.js';
+import { UserSubscriber } from './user.subscriber.js';
+import { UserRepository } from './user.repository.js';
 
 @Module({
   imports: [

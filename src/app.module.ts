@@ -8,16 +8,16 @@ import { ConfigService } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { AppResolver } from './app.resolver';
-import { CommentModule } from './comment/comment.module';
-import { CommonModule } from './common/common.module';
-import { CommentPostModule } from './comment-post/comment-post.module';
-import { GlobalErrorInterceptor } from './middleware/error.middleware';
-import { PostModule } from './post/post.module';
-import { RedisIoAdapter } from './websocket/redis-adaptor';
-import { SearchModule } from './search/search.module';
-import { UserModule } from './user/user.module';
-import { WebsocketModule } from './websocket/live-comments.module';
+import { AppResolver } from './app.resolver.js';
+import { CommentModule } from './comment/comment.module.js';
+import { CommonModule } from './common/common.module.js';
+import { CommentPostModule } from './comment-post/comment-post.module.js';
+import { GlobalErrorInterceptor } from './middleware/error.middleware.js';
+import { PostModule } from './post/post.module.js';
+import { RedisIoAdapter } from './websocket/redis-adaptor.js';
+import { SearchModule } from './search/search.module.js';
+import { UserModule } from './user/user.module.js';
+import { WebsocketModule } from './websocket/live-comments.module.js';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { WebsocketModule } from './websocket/live-comments.module';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         url: config.get<string>('DATABASE_URL'),
-        migrations: ['/migrations/*{.ts,.js}'],
+        migrations: ['dist/migration/**/*.js'],
         migrationsTableName: '_migrations',
         migrationsRun: true,
         entities: ['./**/*.entity{.ts,.js}'],

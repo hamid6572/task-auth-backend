@@ -1,7 +1,7 @@
-import { CommentService } from './comment.service';
-import { CommentResolver } from './comment.resolver';
-import { CommentRepository } from './comment.repository';
-import { CommentSubscriber } from './comment.subscriber';
+import { CommentService } from './comment.service.js';
+import { CommentResolver } from './comment.resolver.js';
+import { CommentRepository } from './comment.repository.js';
+import { CommentSubscriber } from './comment.subscriber.js';
 
 export {
   CommentRepository,

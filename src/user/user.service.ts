@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 
-import { CommonService } from '../common/common.service';
-import { JwtAuthService } from './jwt-auth.service';
-import { LoginInput } from './dto/input/auth-input';
-import { UserRepository } from './user.repository';
-import { UserInput } from './dto/input/user-input';
-import { User, UserBuilder } from './entities/user.entity';
-import { LoginResponse } from './dto/output/auth-response';
+import { CommonService } from '../common/common.service.js';
+import { JwtAuthService } from './jwt-auth.service.js';
+import { LoginInput } from './dto/input/auth-input.js';
+import { UserRepository } from './user.repository.js';
+import { UserInput } from './dto/input/user-input.js';
+import { User, UserBuilder } from './entities/user.entity.js';
+import { LoginResponse } from './dto/output/auth-response.js';
 
 @Injectable()
 export class UserService {

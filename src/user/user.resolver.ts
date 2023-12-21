@@ -1,13 +1,13 @@
 import { Resolver, Args, Query, Mutation } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
-import { UserService } from './user.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { GqlAuthGuard } from './guards/gql-auth.guard';
-import { LoginInput } from './dto/input/auth-input';
-import { LoginResponse } from './dto/output/auth-response';
-import { UserInput } from './dto/input/user-input';
-import { User } from './entities/user.entity';
+import { UserService } from './user.service.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { GqlAuthGuard } from './guards/gql-auth.guard.js';
+import { LoginInput } from './dto/input/auth-input.js';
+import { LoginResponse } from './dto/output/auth-response.js';
+import { UserInput } from './dto/input/user-input.js';
+import { User } from './entities/user.entity.js';
 
 @Resolver(() => User)
 export class UserResolver {

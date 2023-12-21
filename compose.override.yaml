@@ -1,0 +1,11 @@
+services:
+  app:
+    # image: myapp:prod
+    # entrypoint: ['/bin/sh', './entrypoint.sh']
+    build:
+      context: .
+      args:
+        NODE_ENV: prod
+    restart: always
+    # environment:
+    #   - NODE_ENV='prod'

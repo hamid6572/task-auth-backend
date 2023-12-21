@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
-import { WebsocketGateway } from './live-comments.gateway';
-import { RedisIoAdapter } from './redis-adaptor';
+import { WebsocketGateway } from './live-comments.gateway.js';
+import { RedisIoAdapter } from './redis-adaptor.js';
 
 @Module({
   imports: [

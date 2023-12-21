@@ -1,11 +1,11 @@
 import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
-import { CommentPostService } from './comment-post.service';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { User } from '../user/entities/user.entity';
-import { JwtAuthGuard } from '../user/guards/jwt-auth.guard';
-import { SuccessResponse } from '../post/dto/success-response';
+import { CommentPostService } from './comment-post.service.js';
+import { CurrentUser } from '../decorators/current-user.decorator.js';
+import { User } from '../user/entities/user.entity.js';
+import { JwtAuthGuard } from '../user/guards/jwt-auth.guard.js';
+import { SuccessResponse } from '../post/dto/success-response.js';
 
 @Resolver()
 export class CommentPostResolver {

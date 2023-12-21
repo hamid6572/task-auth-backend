@@ -5,16 +5,16 @@ import {
 } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
-import { CommentInput } from './dto/input/comment-input';
-import { CommentRepository } from './comment.repository';
-import { PostService } from '../post/post.service';
-import { User } from '../user/entities/user.entity';
-import { ReplyInput } from './dto/input/reply-input';
-import { Comment } from './entities/comment.entity';
-import { Post } from '../post/entities/post.entity';
-import { SuccessResponse } from '../post/dto/success-response';
-import { CommonService } from '../common/common.service';
-import { PaginationInput } from '../post/dto/input/post-pagination-input';
+import { CommentInput } from './dto/input/comment-input.js';
+import { CommentRepository } from './comment.repository.js';
+import { PostService } from '../post/post.service.js';
+import { User } from '../user/entities/user.entity.js';
+import { ReplyInput } from './dto/input/reply-input.js';
+import { Comment } from './entities/comment.entity.js';
+import { Post } from '../post/entities/post.entity.js';
+import { SuccessResponse } from '../post/dto/success-response.js';
+import { CommonService } from '../common/common.service.js';
+import { PaginationInput } from '../post/dto/input/post-pagination-input.js';
 
 @Injectable()
 export class CommentService {

@@ -8,8 +8,8 @@ import {
   UpdateEvent,
 } from 'typeorm';
 
-import { SearchService } from '../search/search.service';
-import { Comment } from './entities/comment.entity';
+import { SearchService } from '../search/search.service.js';
+import { Comment } from './entities/comment.entity.js';
 
 @EventSubscriber()
 @Injectable()

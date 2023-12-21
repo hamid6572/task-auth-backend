@@ -1,5 +1,5 @@
 import { Resolver, Args, Query } from '@nestjs/graphql';
-import { SearchService } from './search.service';
+import { SearchService } from './search.service.js';
 
 @Resolver()
 export class SearchResolver {

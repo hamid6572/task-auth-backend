@@ -14,9 +14,11 @@ services:
       - $ELASTIC_SEARCH_HTTP_PORT:$ELASTIC_SEARCH_HTTP_PORT
       - $ELASTIC_SEARCH_CLUSTER_PORT:$ELASTIC_SEARCH_CLUSTER_PORT
     environment:
-      - discovery.type=single-node
+      - 'discovery.type=single-node'
     cpus: 0.75
-    mem_limit:  500m
+    mem_limit: 500m
+    networks:
+      - elastic
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
 
@@ -26,8 +28,15 @@ services:
       - $KIBANA_LOCAL_PORT:$KIBANA_DOCKER_PORT
     environment:
       ELASTICSEARCH_URL: $ELASTIC_SEARCH_HOST
+      # - ELASTIC_USERNAME=elastic
+      # - ELASTIC_PASSWORD=elasticsearch
+      # - xpack.security.enabled=true
+    links:
+      - elasticsearch
     cpus: 0.75
-    mem_limit:  500m
+    mem_limit: 500m
+    networks:
+      - elastic
     depends_on:
       - elasticsearch
 
@@ -45,26 +54,31 @@ services:
 
   app:
     working_dir: /app
-    entrypoint: ["/bin/sh", "./entrypoint.sh"]
+    build:
+      context: .
+      args:
+        - NODE_ENV=dev
+    # entrypoint: ['/bin/sh', './entrypoint.sh']
     depends_on:
-    - redis
-    - elasticsearch
-    - postgresdb
+      - redis
+      - elasticsearch
+      - postgresdb
     restart: unless-stopped
-    build: ./
-    env_file: ./.env
+    environment:
+      - DATABASE_URL=$DATABASE_URL
+      - REDIS_URL=$REDIS_URL
+      - ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
+      - JWT_SECRET=$JWT_SECRET
     ports:
       - $NODE_LOCAL_PORT:$NODE_LOCAL_PORT
     volumes:
       - .:/app
-    environment:
-      - DB_HOST=host.docker.internal
-      - DB_USER=$DATABASE_USERNAME
-      - DB_PASSWORD=$DATABASE_PASSWORD
-      - DB_NAME=$DATABASE_NAME
-      - DB_PORT=$DATABASE_LOCAL_PORT
 
 volumes:
   pgdata:
   elasticsearch_data:
     driver: local
+
+networks:
+  elastic:
+    driver: bridge
