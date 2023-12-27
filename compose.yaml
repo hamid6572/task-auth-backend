@@ -65,6 +65,7 @@ services:
       - postgresdb
     restart: unless-stopped
     environment:
+      - NODE_ENV=$NODE_ENV
       - DATABASE_URL=$DATABASE_URL
       - REDIS_URL=$REDIS_URL
       - ELASTIC_SEARCH_HOST=$ELASTIC_SEARCH_HOST
