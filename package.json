@@ -11,7 +11,7 @@
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nodemon src/main.js",
+    "start:dev": "tsc && nodemon src/main.js",
     "start:prod": "cd dist && node src/main.js",
     "start:debug": "nest start --debug --watch",
     "typeorm": "ts-node ./node_modules/typeorm/cli",
