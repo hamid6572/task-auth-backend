@@ -40,9 +40,12 @@ $ npm run start
 
 # watch mode
 $ npm run start:dev
+$ docker-compose -f compose.yaml up --build
 
 # production mode
 $ npm run start:prod
+$ docker-compose up --build
+
 ```
 
 ## Test

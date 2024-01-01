@@ -23,9 +23,10 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
     return User;
   }
 
-  async beforeInsert(event: InsertEvent<User>) {
-    event.entity.password = this.commonService.encodePassword(
-      event.entity.password,
-    );
-  }
+  // async beforeInsert(event: InsertEvent<User>) {
+  //   event.entity.password = this.commonService.encodePassword(
+  //     event.entity.password,
+  //   );
+    
+  // }
 }
