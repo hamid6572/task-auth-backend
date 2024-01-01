@@ -1,0 +1,7 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        NODE_ENV: prod
+    restart: always

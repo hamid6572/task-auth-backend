@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": ".js,.ts",
   "ignore": [],
-  "exec": "cd dist && node"
+  "exec": "tsc && cd dist && node"
 }

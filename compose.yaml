@@ -58,7 +58,6 @@ services:
       context: .
       args:
         - NODE_ENV=dev
-    # entrypoint: ['/bin/sh', './entrypoint.sh']
     depends_on:
       - redis
       - elasticsearch
