@@ -40,7 +40,7 @@ export class CommentResolver {
     return this.commentService.comment(commentId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //  @UseGuards(JwtAuthGuard)
   @Query(() => [Comment])
   async getComment(
     @Args('postId', { type: () => Int }) postId: number,
