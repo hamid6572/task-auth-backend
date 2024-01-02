@@ -10,16 +10,23 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
+import redis from 'ioredis';
+const channel = 'commentNotify';
 
 @WebSocketGateway({ cors: true })
 export class WebsocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  private readonly subscriber: redis;
+  private readonly publisher: redis;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
-
+  ) {
+    this.subscriber = new redis(this.configService.get<string>('REDIS_URL'));
+    this.publisher = new redis(this.configService.get<string>('REDIS_URL'));
+  }
   @WebSocketServer()
   server: Server;
 
@@ -28,7 +35,6 @@ export class WebsocketGateway
   }
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
     const token = client.handshake.headers.authorization;
     try {
       const decodedToken = this.jwtService.verify(token, {
@@ -39,7 +45,20 @@ export class WebsocketGateway
       if (decodedToken) {
         const userId = decodedToken.id;
         client.join(`user-${userId}`);
+
+        this.subscriber.subscribe(channel, err => {
+          if (err) {
+            this.subscriber.disconnect();
+          } else {
+            this.subscriber.on('message', (channel, message) => {
+              console.log(
+                `Received message from channel ${channel}: ${message}`,
+              );
+            });
+          }
+        });
       }
+      console.log(`Client connected: ${client.id}`);
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
@@ -51,10 +70,23 @@ export class WebsocketGateway
 
   @SubscribeMessage('comment')
   async handleComment(
-    client: Socket,
+    socket: Socket,
     { commentId, postId }: { commentId: number; postId: number },
   ) {
-    console.log('hello from handle comment');
+    const message = 'New comment added!';
+
+    this.publisher.publish(channel, message, err => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log(`Message published to channel "${channel}": "${message}"`);
+        socket.broadcast
+          .to(`post-${postId}`)
+          .emit('newCommentNotify', 'New comment added!', response => {
+            console.log('comment delivered!', response);
+          });
+      }
+    });
 
     this.server.to(`post-${postId}`).emit('newComment', postId, commentId);
   }
