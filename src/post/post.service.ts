@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -16,6 +18,8 @@ import { SearchService } from '../search/search.service.js';
 import { Comment } from '../comment/entities/comment.entity.js';
 import { CommonService } from '../common/common.service.js';
 import { SuccessResponse } from './dto/success-response.js';
+import { createWriteStream } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class PostService {
@@ -33,9 +37,28 @@ export class PostService {
    * @returns post
    */
   async addPost(
-    { title, content }: postInput,
+    { title, content, image }: postInput,
     { id }: User,
   ): Promise<SuccessResponse> {
+    const { createReadStream, filename } = await image;
+    console.log(image);
+
+    const fileUpload = new Promise(async resolve => {
+      createReadStream()
+        .pipe(createWriteStream(join(process.cwd(), `./uploads/${filename}`)))
+        .on('finish', () =>
+          resolve({
+            title,
+            content,
+            image: filename,
+          }),
+        )
+        .on('error', () => {
+          new HttpException('Could not save image', HttpStatus.BAD_REQUEST);
+        });
+    });
+    console.log('fileUpload==>', fileUpload);
+
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user)
       throw new NotFoundException(
