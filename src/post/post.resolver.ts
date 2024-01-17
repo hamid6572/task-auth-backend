@@ -17,6 +17,7 @@ import { User } from '../user/entities/user.entity.js';
 import { Post } from './entities/post.entity.js';
 import { PaginationInput } from './dto/input/post-pagination-input.js';
 import { SuccessResponse } from './dto/success-response.js';
+import { PaginatedPostsResponse } from './dto/paginated-posts-response.js';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -60,12 +61,10 @@ export class PostResolver {
   }
 
   // @UseGuards(JwtAuthGuard)
-  @Query(() => [Post])
+  @Query(() => PaginatedPostsResponse)
   async paginatedPosts(
     @Args() paginationInput: PaginationInput,
-  ): Promise<Post[]> {
-    console.log('hi there!');
-
+  ): Promise<PaginatedPostsResponse> {
     return this.postService.paginatedPosts(paginationInput);
   }
 
