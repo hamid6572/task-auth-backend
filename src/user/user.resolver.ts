@@ -15,8 +15,8 @@ export class UserResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => User)
-  async user(@Args('email') email: string) {
-    return this.userService.user(email);
+  async user(@Args('id') id: number) {
+    return this.userService.getUserById(id);
   }
 
   @UseGuards(GqlAuthGuard)

@@ -16,6 +16,7 @@ import { SearchService } from '../search/search.service.js';
 import { Comment } from '../comment/entities/comment.entity.js';
 import { CommonService } from '../common/common.service.js';
 import { SuccessResponse } from './dto/success-response.js';
+import { PaginatedPostsResponse } from './dto/paginated-posts-response.js';
 
 @Injectable()
 export class PostService {
@@ -263,26 +264,22 @@ export class PostService {
    * @param paginationInput
    * @returns posts
    */
-  async paginatedPosts(paginationInput: PaginationInput): Promise<Post[]> {
+  async paginatedPosts(
+    paginationInput: PaginationInput,
+  ): Promise<PaginatedPostsResponse> {
     const { page, itemsPerPage } = paginationInput;
 
-    //keyset
-    return this.postRepository
+    const skip = (page - 1) * itemsPerPage;
+    const [posts, total] = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.comments', 'comments')
       .leftJoinAndSelect('post.user', 'user')
-      .skip(page)
+      .skip(skip)
       .take(itemsPerPage)
-      .orderBy('post.createdAt')
-      .getMany();
+      .orderBy('post.id')
+      .getManyAndCount();
 
-    //offset
-    // const skip = (page - 1) * itemsPerPage;
-    // return this.postRepository
-    //   .createQueryBuilder('post')
-    //   .skip(skip)
-    //   .take(itemsPerPage)
-    //   .getMany();
+    return { posts, total };
   }
 
   /**

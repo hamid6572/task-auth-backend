@@ -29,6 +29,13 @@ export class UserService {
     });
   }
 
+  async getUserById(id: number): Promise<User> {
+    return await this.userRepository.findOne({
+      where: { id },
+      relations: { posts: true, comments: true },
+    });
+  }
+
   /**
    * Validates password
    * @param Password
