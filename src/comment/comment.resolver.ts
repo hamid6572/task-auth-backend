@@ -18,6 +18,7 @@ import { ReplyInput } from './dto/input/reply-input.js';
 import { Post } from '../post/entities/post.entity.js';
 import { SuccessResponse } from '../post/dto/success-response.js';
 import { PaginationInput } from '../post/dto/input/post-pagination-input.js';
+import { CommentsResponse } from './dto/comment-response.js';
 
 @Resolver(() => Comment)
 export class CommentResolver {
@@ -41,20 +42,20 @@ export class CommentResolver {
   }
 
   //  @UseGuards(JwtAuthGuard)
-  @Query(() => [Comment])
+  @Query(() => CommentsResponse)
   async getComment(
     @Args('postId', { type: () => Int }) postId: number,
     @Args() paginationInput: PaginationInput,
-  ): Promise<Comment[]> {
+  ): Promise<CommentsResponse> {
     return this.commentService.commentsByPost(postId, paginationInput);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Query(() => [Comment])
+  // @UseGuards(JwtAuthGuard)
+  @Query(() => CommentsResponse)
   async getRepliesOfComment(
     @Args('commentId', { type: () => Int }) commentId: number,
     @Args() paginationInput: PaginationInput,
-  ): Promise<Comment[]> {
+  ): Promise<CommentsResponse> {
     return this.commentService.repliesOfComment(commentId, paginationInput);
   }
 

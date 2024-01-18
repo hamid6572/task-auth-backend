@@ -272,7 +272,7 @@ export class PostService {
     const skip = (page - 1) * itemsPerPage;
     const [posts, total] = await this.postRepository
       .createQueryBuilder('post')
-      .leftJoinAndSelect('post.comments', 'comments')
+      // .leftJoinAndSelect('post.comments', 'comments')
       .leftJoinAndSelect('post.user', 'user')
       .skip(skip)
       .take(itemsPerPage)

@@ -15,6 +15,7 @@ import { Post } from '../post/entities/post.entity.js';
 import { SuccessResponse } from '../post/dto/success-response.js';
 import { CommonService } from '../common/common.service.js';
 import { PaginationInput } from '../post/dto/input/post-pagination-input.js';
+import { CommentsResponse } from './dto/comment-response.js';
 
 @Injectable()
 export class CommentService {
@@ -73,11 +74,11 @@ export class CommentService {
   async commentsByPost(
     postId: number,
     { itemsPerPage, page }: PaginationInput,
-  ): Promise<Comment[]> {
+  ): Promise<CommentsResponse> {
     const post: Post | null = await this.postService.post(postId);
     if (!post) throw new BadRequestException('No post exists!');
 
-    const comments = await this.commentRepository
+    const [comments, total] = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.post', 'post')
       .where('post.id = :postId', { postId: postId })
@@ -85,13 +86,12 @@ export class CommentService {
       .skip(page)
       .take(itemsPerPage)
       .orderBy('comment.createdAt')
-      .getMany();
-
-    if (!comments) return [];
+      .getManyAndCount();
+    if (!comments) return { comments: [], total: 0 };
 
     for (const comment of comments)
       comment.replies = await this.buildNestedReplies(comment);
-    return comments;
+    return { comments, total };
   }
 
   /**
@@ -120,11 +120,11 @@ export class CommentService {
   async repliesOfComment(
     commentId: number,
     { itemsPerPage, page }: PaginationInput,
-  ): Promise<Comment[]> {
+  ): Promise<CommentsResponse> {
     const comment = await this.comment(commentId);
     if (!comment) throw new BadRequestException('No comment exists!');
 
-    const comments = await this.commentRepository
+    const [comments, total] = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.post', 'post')
       .leftJoinAndSelect('comment.parent', 'parent')
@@ -132,14 +132,12 @@ export class CommentService {
       .skip(page)
       .take(itemsPerPage)
       .orderBy('comment.createdAt')
-      .getMany();
-
-    if (!comments) return [];
+      .getManyAndCount();
+    if (!comments) return { comments: [], total: 0 };
 
     for (const comment of comments)
       comment.replies = await this.buildNestedReplies(comment);
-
-    return comments;
+    return { comments, total };
   }
 
   /**
