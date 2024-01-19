@@ -77,13 +77,14 @@ export class CommentService {
   ): Promise<CommentsResponse> {
     const post: Post | null = await this.postService.post(postId);
     if (!post) throw new BadRequestException('No post exists!');
+    const skip = (page - 1) * itemsPerPage;
 
     const [comments, total] = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.post', 'post')
       .where('post.id = :postId', { postId: postId })
       .andWhere('comment.parent IS NULL')
-      .skip(page)
+      .skip(skip)
       .take(itemsPerPage)
       .orderBy('comment.createdAt')
       .getManyAndCount();
@@ -123,13 +124,14 @@ export class CommentService {
   ): Promise<CommentsResponse> {
     const comment = await this.comment(commentId);
     if (!comment) throw new BadRequestException('No comment exists!');
+    const skip = (page - 1) * itemsPerPage;
 
     const [comments, total] = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.post', 'post')
       .leftJoinAndSelect('comment.parent', 'parent')
       .where('parent.id = :commentId', { commentId })
-      .skip(page)
+      .skip(skip)
       .take(itemsPerPage)
       .orderBy('comment.createdAt')
       .getManyAndCount();
