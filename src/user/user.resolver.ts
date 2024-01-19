@@ -8,6 +8,7 @@ import { LoginInput } from './dto/input/auth-input.js';
 import { LoginResponse } from './dto/output/auth-response.js';
 import { UserInput } from './dto/input/user-input.js';
 import { User } from './entities/user.entity.js';
+import { CurrentUser } from '../decorators/current-user.decorator.js';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -15,8 +16,8 @@ export class UserResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => User)
-  async user(@Args('id') id: number) {
-    return this.userService.getUserById(id);
+  async user(@CurrentUser() user: User) {
+    return this.userService.getUserById(user.id);
   }
 
   @UseGuards(GqlAuthGuard)
