@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 
 import { CommonService } from '../common/common.service.js';
@@ -8,6 +8,7 @@ import { UserRepository } from './user.repository.js';
 import { UserInput } from './dto/input/user-input.js';
 import { User, UserBuilder } from './entities/user.entity.js';
 import { LoginResponse } from './dto/output/auth-response.js';
+import { SuccessResponse } from '../post/dto/success-response.js';
 
 @Injectable()
 export class UserService {
@@ -112,5 +113,31 @@ export class UserService {
     });
 
     return { token: `Bearer ${token}`, user };
+  }
+
+  async updatePassword(id: number, password: string): Promise<SuccessResponse> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user)
+      throw new NotFoundException(
+        "User not found or you don't have permission to edit it.",
+      );
+
+    const updatedUser = new UserBuilder()
+      .updateUser(user)
+      .setPassword(password)
+      .build();
+    console.log(updatedUser);
+
+    const resultantUser = await this.commonService.updateEntity(
+      id,
+      updatedUser,
+      User,
+    );
+    if (!resultantUser)
+      throw new NotFoundException(
+        'Unable to update password, Something went wrong.',
+      );
+
+    return new SuccessResponse('Password Updated successfully', updatedUser.id);
   }
 }
