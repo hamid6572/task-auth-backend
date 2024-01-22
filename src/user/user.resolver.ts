@@ -9,6 +9,7 @@ import { LoginResponse } from './dto/output/auth-response.js';
 import { UserInput } from './dto/input/user-input.js';
 import { User } from './entities/user.entity.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
+import { SuccessResponse } from '../post/dto/success-response.js';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -29,6 +30,15 @@ export class UserResolver {
   @Mutation(() => LoginResponse)
   async register(@Args('createUser') createUser: UserInput) {
     return await this.userService.createUser(createUser);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => SuccessResponse)
+  async updatePassword(
+    @Args('password') password: string,
+    @CurrentUser() user: User,
+  ) {
+    return await this.userService.updatePassword(user.id, password);
   }
 
   // @ResolveField(() => [Post])
